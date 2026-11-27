@@ -447,7 +447,7 @@
   .inv-row .est { font-family: var(--font-num); font-size: 12px; color: var(--ink-soft); }
   .inv-row.ok { border-color: var(--correct); }
   .inv-row .btn-mini { padding: 2px 8px; }
-  .jug-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 0 18px; }
+  .jug-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 0 18px; }
   .mini-select { max-width: 130px; padding: 5px 6px; border-radius: 8px; border: 1px solid var(--cell-border); background: var(--cell-bg); color: var(--ink); font-size: 12px; }
   .reveal-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--cell-bg); border: 1px solid var(--cell-border); }
   .reveal-bar > span:first-child { font-weight: 800; flex: 1; min-width: 180px; }
@@ -574,6 +574,13 @@
   .sorteo-paso span { color: var(--ink-soft); font-weight: 700; }
   .sorteo-paso b { font-family: var(--font-display); font-size: 26px; }
   .btn-estrella { background: var(--gold) !important; color: var(--on-gold) !important; }
+  .inv-grupo { display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inv-row .nom { min-width: 0; }
+  .mezcla { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+  .mezcla table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .mezcla th, .mezcla td { padding: 6px 10px; border-bottom: 1px solid var(--cell-border); text-align: center; white-space: nowrap; }
+  .mezcla th:first-child, .mezcla td:first-child { text-align: left; }
+  .mezcla thead th { position: sticky; top: 0; background: var(--bg-alt); }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1174,17 +1181,32 @@
       G.clientes[cl] = eqId;
     }
   }
-  // El equipo con menos integrantes; si hay empate, uno al azar
-  function equipoConMenos() {
+  // Elige el equipo para un jugador: que los equipos queden parejos en cantidad (diferencia máxima de 1)
+  // y mezclados: se evita juntar gente del mismo sector, contrato o disciplina.
+  function equipoConMenos(cl) {
     var ids = equiposReales(); if (!ids.length) return null;
     var min = Math.min.apply(null, ids.map(cantReales));
-    var cand = ids.filter(function (k) { return cantReales(k) === min; });
+    var tags = (cl && G.jugadores[cl] && G.jugadores[cl].tags) || [];
+    var puntaje = function (k) {
+      var sc = (cantReales(k) - min) * 4;
+      (G.equipos[k].integrantes || []).forEach(function (x) {
+        if (x.cliente === cl) return;
+        var j = G.jugadores[x.cliente]; if (!j || j.bot || !j.tags) return;
+        tags.forEach(function (t) { if (j.tags.indexOf(t) >= 0) sc += etiqueta(t).peso; });
+      });
+      return sc;
+    };
+    var cand = ids.filter(function (k) { return cantReales(k) <= min + 1; });
+    var mejor = Math.min.apply(null, cand.map(puntaje));
+    cand = cand.filter(function (k) { return puntaje(k) === mejor; });
     return cand[Math.floor(Math.random() * cand.length)];
   }
   function cantReales(k) { return (G.equipos[k].integrantes || []).filter(function (x) { var j = G.jugadores[x.cliente]; return j && !j.bot; }).length; }
   function repartirSinEquipo() {
     var sin = Object.keys(G.jugadores).filter(function (c) { var j = G.jugadores[c]; return !j.bot && (!j.equipoId || !G.equipos[j.equipoId]); });
-    sin.sort(function () { return Math.random() - 0.5; }).forEach(function (c) { var e = equipoConMenos(); if (e) ponerEnEquipo(c, e); });
+    // primero los que tienen más grupos, para que se repartan mejor
+    sin.sort(function () { return Math.random() - 0.5; }).sort(function (a, b) { return ((G.jugadores[b].tags || []).length - (G.jugadores[a].tags || []).length); })
+      .forEach(function (c) { var e = equipoConMenos(c); if (e) ponerEnEquipo(c, e); });
   }
   // Mientras los equipos son secretos, al agregar uno nuevo se emparejan: pasan jugadores al azar de los más grandes a los más chicos
   function balancear() {
@@ -1239,20 +1261,85 @@
     Object.keys(G.resp).forEach(function (c) { if (G.resp[c].equipoId === id) G.resp[c].equipoId = null; });
     repartirSinEquipo();
   }
-  // ---- Lista de invitados: la carga el conductor; el jugador se busca y se toca ----
+  // ---- Lista de invitados con grupos (sector, contrato, disciplina) para mezclar los equipos ----
   function invitados() { contenido.invitados = contenido.invitados || []; return contenido.invitados; }
-  function normNombre(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim(); }
-  function agregarInvitados(nombres) {
-    var l = invitados(), ya = {}, n = 0;
-    l.forEach(function (x) { ya[normNombre(x.nombre)] = 1; });
-    nombres.forEach(function (s) {
-      s = limpio(s, 40); if (s.length < 2) return;
-      var k = normNombre(s); if (ya[k]) return; ya[k] = 1;
-      l.push({ id: uid('i'), nombre: s }); n++;
+  function normNombre(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+  // Misma persona aunque esté escrita "Apellido Nombre" o "Nombre Apellido", o con aclaraciones entre paréntesis
+  function claveNombre(s) { return normNombre(String(s || '').replace(/\([^)]*\)/g, ' ')).split(' ').filter(Boolean).sort().join(' '); }
+  function lindo(s) {
+    s = String(s || '').replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+    if (s === s.toUpperCase()) s = s.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, function (m, a, b) { return a + b.toUpperCase(); });
+    return s;
+  }
+  function etiqueta(t) { var p = String(t).split(':'); return { peso: Number(p[0]) || 1, grupo: p[1] || '', valor: p.slice(2).join(':') }; }
+  function agregarInvitados(items) {
+    var l = invitados(), por = {}, n = 0;
+    l.forEach(function (x) { por[claveNombre(x.nombre)] = x; });
+    items.forEach(function (it) {
+      if (typeof it === 'string') it = { nombre: it, tags: [] };
+      var nom = limpio(lindo(it.nombre), 40); if (nom.length < 2) return;
+      var k = claveNombre(nom), ya = por[k];
+      if (ya) { ya.tags = (ya.tags || []).concat((it.tags || []).filter(function (t) { return (ya.tags || []).indexOf(t) < 0; })); if (it.preferido) ya.nombre = nom; return; }
+      ya = por[k] = { id: uid('i'), nombre: nom, tags: (it.tags || []).slice() };
+      l.push(ya); n++;
     });
     l.sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); });
     guardarContenido(); compartirListas(true);
     return n;
+  }
+  function grupoTexto(tags) { return (tags || []).map(etiqueta).filter(function (e) { return e.peso >= 2; }).map(function (e) { return e.valor; }).join(' · '); }
+
+  // De un libro de Excel arma la lista de personas con sus grupos:
+  // - hojas con columnas (Nombre / Sector / Contrato…): cada columna extra es un grupo
+  // - hojas de una sola columna con títulos en negrita (Básquet, Fútbol…): el título es el grupo
+  var NORM_GRUPO = { 'ADMNISTRACION': 'ADMINISTRACION' };
+  function valorGrupo(v) { v = String(v || '').trim().replace(/\s+/g, ' '); var u = v.toUpperCase(); v = NORM_GRUPO[u] || v; return lindo(v); }
+  function personasDeLibro(hojas) {
+    var out = [];
+    hojas.forEach(function (h) {
+      var filas = h.filas.filter(function (f) { return f && f.some(function (c) { return c && String(c.v).trim(); }); });
+      if (!filas.length) return;
+      var anchos = filas.map(function (f) { return f.filter(function (c) { return c && String(c.v).trim(); }).length; });
+      var unaColumna = Math.max.apply(null, anchos) <= 1;
+      if (unaColumna) {
+        var hayNegrita = filas.some(function (f) { return f.some(function (c) { return c && c.b; }); });
+        var grupo = '';
+        filas.forEach(function (f) {
+          var c = f.filter(function (x) { return x && String(x.v).trim(); })[0];
+          var v = String(c.v).trim();
+          if (hayNegrita && c.b) { grupo = valorGrupo(v); return; }
+          var tags = ['1:Hoja:' + lindo(h.nombre)];
+          if (grupo) tags.push('3:' + lindo(h.nombre) + ':' + grupo);
+          out.push({ nombre: v, tags: tags, preferido: true });
+        });
+      } else {
+        var cab = filas[0].map(function (c) { return c ? normNombre(c.v) : ''; });
+        var iNom = cab.findIndex(function (x) { return /nombre|apellido|invitad|jugador|participante|socio/.test(x); });
+        var iApe = cab.findIndex(function (x, i) { return i !== iNom && /^apellido$/.test(x); });
+        var conCab = iNom >= 0;
+        if (!conCab) iNom = 0;
+        var cuerpo = conCab ? filas.slice(1) : filas;
+        var ancho = Math.max.apply(null, filas.map(function (f) { return f.length; }));
+        var titulos = [];
+        for (var ci = 0; ci < ancho; ci++) {
+          var vals = cuerpo.map(function (f) { return f[ci] ? String(f[ci].v) : ''; }).join(' ');
+          titulos[ci] = conCab && cab[ci] ? lindo(filas[0][ci].v) : (/emplead|planta|contrat|coordinador|gerente|monotribut|pasant/i.test(vals) ? 'Contrato' : 'Columna ' + (ci + 1));
+        }
+        cuerpo.forEach(function (f) {
+          var nom = [f[iNom] && f[iNom].v, iApe >= 0 && f[iApe] ? f[iApe].v : ''].filter(function (x) { return x && String(x).trim(); }).join(' ');
+          if (!/[a-záéíóúñ]/i.test(nom)) return;
+          var tags = ['1:Hoja:' + lindo(h.nombre)];
+          for (var i = 0; i < ancho; i++) {
+            if (i === iNom || i === iApe || !f[i] || !String(f[i].v).trim()) continue;
+            var titulo = titulos[i];
+            var fuerte = /sector|area|área|puesto|disciplina|deporte|departamento/i.test(titulo);
+            tags.push((fuerte ? 3 : 2) + ':' + titulo + ':' + valorGrupo(f[i].v));
+          }
+          out.push({ nombre: nom, tags: tags });
+        });
+      }
+    });
+    return out;
   }
   function quienEs(invId) { var r = null; Object.keys(G.jugadores).forEach(function (c) { if (G.jugadores[c].invitado === invId) r = c; }); return r; }
   // Las listas largas no viajan en cada actualización: los celulares las piden cuando las necesitan
@@ -1288,9 +1375,11 @@
       if (j.equipoId && G.equipos[j.equipoId]) G.equipos[j.equipoId].integrantes.forEach(function (x) { if (x.cliente === cl) x.nombre = persona; });
     } else {
       j = G.jugadores[cl] = { nombre: persona, equipoId: null, puntos: 0, numero: numeroLibre() };
-      var e = equipoConMenos(); if (e) ponerEnEquipo(cl, e);
+      j.tags = inv ? (inv.tags || []).slice() : [];
+      var e = equipoConMenos(cl); if (e) ponerEnEquipo(cl, e);
     }
     j.invitado = inv ? inv.id : null;
+    if (inv) j.tags = (inv.tags || []).slice();
     if (!j.numero) j.numero = numeroLibre();
     publicar();
     return { ok: true };
@@ -2076,6 +2165,21 @@
   }
 
   // ---- Equipos ----
+  // Cuántos de cada grupo (sector, contrato, disciplina) hay en cada equipo
+  function htmlMezcla() {
+    var filas = {}, eqs = EQUIPOS_FIJOS;
+    Object.keys(G.jugadores).forEach(function (c) {
+      var j = G.jugadores[c]; if (j.bot || !j.equipoId || !G.equipos[j.equipoId] || !esActivo(c)) return;
+      (j.tags || []).forEach(function (t) {
+        var e = etiqueta(t); if (e.peso < 2) return;
+        var k = e.grupo + ': ' + e.valor; filas[k] = filas[k] || {}; filas[k][j.equipoId] = (filas[k][j.equipoId] || 0) + 1;
+      });
+    });
+    var ks = Object.keys(filas).sort(function (a, b) { var ta = 0, tb = 0; eqs.forEach(function (f) { ta += filas[a][f.id] || 0; tb += filas[b][f.id] || 0; }); return tb - ta || a.localeCompare(b, 'es'); });
+    if (!ks.length) return '';
+    return '<section class="card"><div class="card-head"><h2>Mezcla de los equipos</h2><p>Cuántos de cada sector, contrato o disciplina quedaron en cada equipo (solo la gente que ya entró).</p></div><div class="mezcla"><table><thead><tr><th>Grupo</th>' + eqs.map(function (f) { return '<th><i class="dot-eq" style="background:' + f.color + '"></i> ' + f.nombre + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      ks.map(function (k) { return '<tr><td>' + esc(k) + '</td>' + eqs.map(function (f) { return '<td>' + (filas[k][f.id] || '·') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div></section>';
+  }
   function renderEquipos() {
     if (tabActiva !== 'equipos') return;
     var activo = document.activeElement && document.activeElement.id === 'inEquipo' ? $('inEquipo').value : null;
@@ -2106,6 +2210,7 @@
           '<select class="mini-select" data-mover="' + x.c + '" aria-label="Equipo de ' + esc(x.j.nombre) + '">' + opcionesEq(x.j.equipoId) + '</select><span class="pts">' + fmt(x.j.puntos) + '</span>' +
           (confirmando === 'j:' + x.c ? '<button type="button" class="btn-mini danger" data-jdelok="' + x.c + '">¿Sacar?</button>' : '<button type="button" class="btn-mini danger" data-jdel="' + x.c + '" aria-label="Sacar jugador">✕</button>') + '</div>';
       }).join('') + '</div>' : '<p class="muted" style="margin:0">Cuando la gente entre desde el celular, aparece acá.</p>') + '</section>' +
+      htmlMezcla() +
       '<section class="card"><div class="card-head"><h2>Probar sin celulares</h2><p>Suma 3 jugadores simulados 🤖 a cada equipo. Responden solos (aciertan más o menos 6 de cada 10) y no cuentan para repartir a la gente real.</p></div>' +
       '<div class="row-actions" style="margin:0"><button type="button" class="btn btn-gold" id="bots5">🤖 Agregar jugadores de prueba</button>' + (hayBots ? '<button type="button" class="btn-mini danger" id="botsFuera">Sacar los jugadores de prueba</button>' : '') +
       (confirmando === 'puntos' ? '<span class="confirm-inline">¿Poner todos en 0 y borrar fotos y tesoro? <button type="button" class="btn-mini danger" id="ceroOk">Sí</button><button type="button" class="btn-mini" id="ceroNo">No</button></span>' : '<button type="button" class="btn-mini" id="cero">↺ Puntos a cero</button>') +
@@ -2152,7 +2257,8 @@
 
   // ---- Invitados ----
   var filtroInv = '';
-  // Lee la primera hoja de un Excel (.xlsx) sin librerías: un .xlsx es un zip con XML adentro
+  // Lee todas las hojas de un Excel (.xlsx) sin librerías: un .xlsx es un zip con XML adentro.
+  // Devuelve [{ nombre, filas: [[{ v, b }]] }] (b = la celda está en negrita)
   function leerXlsx(buf) {
     var dv = new DataView(buf), u8 = new Uint8Array(buf), dec = new TextDecoder();
     var fin = -1;
@@ -2171,52 +2277,47 @@
       if (f.met === 0) return Promise.resolve(dec.decode(datos));
       return new Response(new Blob([datos]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
     }
-    var hojas = Object.keys(arch).filter(function (x) { return /^xl\/worksheets\/sheet\d+\.xml$/.test(x); }).sort(function (a, b) { return parseInt(a.replace(/\D/g, ''), 10) - parseInt(b.replace(/\D/g, ''), 10); });
-    if (!hojas.length) return Promise.reject(new Error('El Excel no tiene hojas'));
-    return Promise.all([texto('xl/sharedStrings.xml'), texto(hojas[0])]).then(function (r) {
-      var P = new DOMParser(), comp = [];
-      if (r[0]) Array.prototype.forEach.call(P.parseFromString(r[0], 'application/xml').getElementsByTagName('si'), function (si) {
-        comp.push(Array.prototype.map.call(si.getElementsByTagName('t'), function (t) { return t.textContent; }).join(''));
-      });
-      var filas = [];
-      Array.prototype.forEach.call(P.parseFromString(r[1], 'application/xml').getElementsByTagName('row'), function (row) {
-        var fila = [];
-        Array.prototype.forEach.call(row.getElementsByTagName('c'), function (c, idx) {
-          var ref = c.getAttribute('r') || '', letras = (ref.match(/^[A-Z]+/) || [''])[0], col = idx;
-          if (letras) { col = 0; for (var q = 0; q < letras.length; q++) col = col * 26 + letras.charCodeAt(q) - 64; col--; }
-          var t = c.getAttribute('t'), v = c.getElementsByTagName('v')[0], val = '';
-          if (t === 's' && v) val = comp[parseInt(v.textContent, 10)] || '';
-          else if (t === 'inlineStr') val = Array.prototype.map.call(c.getElementsByTagName('t'), function (x) { return x.textContent; }).join('');
-          else if (v) val = v.textContent;
-          fila[col] = val;
+    var P = new DOMParser();
+    var xml = function (t) { return P.parseFromString(t || '<x/>', 'application/xml'); };
+    var porNombre = function (d, tag) { return Array.prototype.slice.call(d.getElementsByTagNameNS('*', tag)); };
+    return Promise.all([texto('xl/workbook.xml'), texto('xl/_rels/workbook.xml.rels'), texto('xl/sharedStrings.xml'), texto('xl/styles.xml')]).then(function (r) {
+      var rels = {};
+      porNombre(xml(r[1]), 'Relationship').forEach(function (x) { rels[x.getAttribute('Id')] = x.getAttribute('Target'); });
+      var hojas = porNombre(xml(r[0]), 'sheet').map(function (s) {
+        var rid = s.getAttribute('r:id') || s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+        var t = rels[rid] || ''; t = t.replace(/^\//, ''); if (t.indexOf('xl/') !== 0) t = 'xl/' + t;
+        return { nombre: s.getAttribute('name') || 'Hoja', ruta: t };
+      }).filter(function (h) { return arch[h.ruta]; });
+      if (!hojas.length) hojas = Object.keys(arch).filter(function (x) { return /^xl\/worksheets\/sheet\d+\.xml$/.test(x); }).sort().map(function (x, i) { return { nombre: 'Hoja ' + (i + 1), ruta: x }; });
+      if (!hojas.length) throw new Error('El Excel no tiene hojas');
+      var comp = porNombre(xml(r[2]), 'si').map(function (si) { return porNombre(si, 't').map(function (t) { return t.textContent; }).join(''); });
+      var est = xml(r[3]), negritas = porNombre(est, 'font').map(function (f) { var b = porNombre(f, 'b')[0]; return !!b && b.getAttribute('val') !== '0' && b.getAttribute('val') !== 'false'; });
+      var xfs = porNombre(est, 'cellXfs')[0], xfNeg = xfs ? porNombre(xfs, 'xf').map(function (x) { return !!negritas[Number(x.getAttribute('fontId')) || 0]; }) : [];
+      return Promise.all(hojas.map(function (h) { return texto(h.ruta); })).then(function (txts) {
+        return hojas.map(function (h, hi) {
+          var filas = [];
+          porNombre(xml(txts[hi]), 'row').forEach(function (row) {
+            var fila = [];
+            porNombre(row, 'c').forEach(function (c, idx) {
+              var ref = c.getAttribute('r') || '', letras = (ref.match(/^[A-Z]+/) || [''])[0], col = idx;
+              if (letras) { col = 0; for (var q = 0; q < letras.length; q++) col = col * 26 + letras.charCodeAt(q) - 64; col--; }
+              var t = c.getAttribute('t'), v = porNombre(c, 'v')[0], val = '';
+              if (t === 's' && v) val = comp[parseInt(v.textContent, 10)] || '';
+              else if (t === 'inlineStr') val = porNombre(c, 't').map(function (x) { return x.textContent; }).join('');
+              else if (v) val = v.textContent;
+              fila[col] = { v: val, b: !!xfNeg[Number(c.getAttribute('s')) || 0] };
+            });
+            filas.push(fila);
+          });
+          return { nombre: h.nombre, filas: filas };
         });
-        filas.push(fila);
       });
-      return filas;
     });
   }
   function leerCsv(txt) {
     var lineas = txt.replace(/^﻿/, '').split(/\r?\n/).filter(function (l) { return l.trim(); });
     var sep = [';', '\t', ','].filter(function (x) { return (lineas[0] || '').indexOf(x) >= 0; })[0];
-    return lineas.map(function (l) { return sep ? l.split(sep).map(function (x) { return x.replace(/^"|"$/g, '').trim(); }) : [l.trim()]; });
-  }
-  // De una tabla saca los nombres: si hay columnas "Nombre" y "Apellido" las junta; si no, usa la primera columna con texto
-  function nombresDeFilas(filas) {
-    if (!filas.length) return [];
-    var cab = (filas[0] || []).map(function (x) { return normNombre(x); });
-    var iNom = -1, iApe = -1;
-    cab.forEach(function (x, i) {
-      if (iApe < 0 && /apellido/.test(x)) iApe = i;
-      else if (iNom < 0 && /nombre|invitad|jugador|participante|socio/.test(x)) iNom = i;
-    });
-    var cuerpo = filas;
-    if (iNom >= 0 || iApe >= 0) cuerpo = filas.slice(1);
-    return cuerpo.map(function (f) {
-      f = f || [];
-      if (iNom >= 0 || iApe >= 0) return [f[iNom], f[iApe]].filter(function (x) { return x && String(x).trim(); }).join(' ');
-      for (var i = 0; i < f.length; i++) if (f[i] && /[a-záéíóúñ]/i.test(f[i])) return f[i];
-      return '';
-    }).map(function (x) { return String(x || '').trim(); }).filter(function (x) { return x.length >= 2; });
+    return [{ nombre: 'Lista', filas: lineas.map(function (l) { return (sep ? l.split(sep) : [l]).map(function (x) { return { v: x.replace(/^"|"$/g, '').trim(), b: false }; }); }) }];
   }
   function importarArchivo(file) {
     var nombre = file.name.toLowerCase();
@@ -2224,11 +2325,11 @@
     if (/\.xlsx$/.test(nombre)) prom = file.arrayBuffer().then(leerXlsx);
     else if (/\.(csv|txt)$/.test(nombre)) prom = file.text().then(leerCsv);
     else { toast('Usá un Excel (.xlsx) o un .csv. Si tenés un .xls viejo, abrilo y guardalo como .xlsx.', 7000); return; }
-    prom.then(function (filas) {
-      var nombres = nombresDeFilas(filas);
-      if (!nombres.length) { toast('No encontré nombres en ese archivo. Poné los nombres en la primera columna.', 6000); return; }
-      var n = agregarInvitados(nombres);
-      toast('📋 Se agregaron ' + n + ' invitados' + (nombres.length > n ? ' (' + (nombres.length - n) + ' ya estaban)' : ''), 5000);
+    prom.then(function (hojas) {
+      var personas = personasDeLibro(hojas);
+      if (!personas.length) { toast('No encontré nombres en ese archivo. Poné los nombres en la primera columna.', 6000); return; }
+      var antes = invitados().length, n = agregarInvitados(personas);
+      toast('📋 Se agregaron ' + n + ' invitados de ' + hojas.filter(function (h) { return h.filas.length; }).length + ' hojas' + (personas.length > n ? ' (' + (personas.length - n) + ' repetidos se unificaron)' : ''), 6000);
       renderInvitados();
     }).catch(function (e) { toast('No se pudo leer el archivo: ' + esc(e.message || e), 6000); });
   }
@@ -2274,7 +2375,8 @@
     var vis = l.filter(function (x) { return !f || normNombre(x.nombre).indexOf(f) >= 0; });
     box.innerHTML = (l.length ? '<div class="inv-grid">' + vis.slice(0, 400).map(function (x) {
       var c = por[x.id], j = c && G.jugadores[c];
-      return '<div class="inv-row' + (j ? ' ok' : '') + '"><span class="nom">' + esc(x.nombre) + '</span><span class="est">' + (j ? '✅ #' + j.numero : '—') + '</span><button type="button" class="btn-mini danger" data-invdel="' + x.id + '" aria-label="Quitar de la lista">✕</button></div>';
+      var gt = grupoTexto(x.tags);
+      return '<div class="inv-row' + (j ? ' ok' : '') + '"><span class="nom">' + esc(x.nombre) + (gt ? '<small class="inv-grupo">' + esc(gt) + '</small>' : '') + '</span><span class="est">' + (j ? '✅ #' + j.numero : '—') + '</span><button type="button" class="btn-mini danger" data-invdel="' + x.id + '" aria-label="Quitar de la lista">✕</button></div>';
     }).join('') + '</div>' + (vis.length > 400 ? '<p class="hint">Mostrando 400 de ' + vis.length + '. Usá el buscador.</p>' : '') : '<p class="muted" style="margin:0">Si no cargás lista, cada jugador escribe su nombre a mano.</p>') +
       (sueltos.length ? '<p class="hint" style="margin-top:12px">Entraron sin estar en la lista: ' + sueltos.map(function (c) { return esc(G.jugadores[c].nombre); }).join(', ') + '</p>' : '');
     box.querySelectorAll('[data-invdel]').forEach(function (b) {
@@ -2938,13 +3040,13 @@
     var cfg = inscripciones.cfg, l = inscripciones.lista.slice().reverse();
     var link = location.origin + '/inscripcion';
     $('tabInscripcion').innerHTML =
-      '<section class="card"><div class="card-head"><h2>Inscripción previa</h2><p>Compartí el link (por WhatsApp, redes o un cartel con el QR). Cada familia se anota antes de la fecha y así sabés cuántos van.</p></div>' +
+      '<section class="card"><div class="card-head"><h2>Confirmación de asistencia</h2><p>Compartí el link (por WhatsApp, redes o un cartel con el QR). Cada uno busca su nombre en la lista de invitados y confirma, y así sabés cuántos van.</p></div>' +
       '<div class="jz-acceso"><div id="inscQr" class="jz-qr"></div><div style="flex:1;min-width:220px"><p class="hint" style="margin:0 0 4px">Link para inscribirse</p><p style="margin:0 0 10px;font-weight:800;word-break:break-all">' + esc(link) + '</p>' +
       '<div class="row-actions" style="margin:0 0 12px"><button type="button" class="btn-mini" id="inscCopiar">📋 Copiar link</button><a class="btn-mini" href="' + esc(link) + '" target="_blank" rel="noopener" style="text-decoration:none">Ver la página</a></div>' +
       '<label class="check-row" style="margin:0 0 10px"><input type="checkbox" id="inscAbierta"' + (cfg.abierta ? ' checked' : '') + '> Inscripción abierta</label>' +
       '<label class="field">Fecha y lugar (se muestra en la página)<input type="text" id="inscFecha" maxlength="60" placeholder="Ej.: Sábado 13 de diciembre, 20 h · Sede social" value="' + esc(cfg.fecha) + '"></label>' +
       '<label class="field" style="margin-top:8px">Mensaje (opcional)<textarea id="inscTexto" rows="2" maxlength="300" placeholder="Ej.: Traé tu camiseta del club. Entrada libre para socios.">' + esc(cfg.texto) + '</textarea></label></div></div></section>' +
-      '<section class="card"><div class="card-head"><h2>Anotados: ' + totalInscriptos() + ' personas · ' + l.length + ' inscripciones</h2>' +
+      '<section class="card"><div class="card-head"><h2>Confirmados: ' + totalInscriptos() + ' personas' + (invitados().length ? ' · ' + l.filter(function (x) { return x.invitado; }).length + ' de ' + invitados().length + ' invitados' : '') + '</h2>' +
         (l.length ? '<span class="row-actions" style="margin:0"><button type="button" class="btn-mini" id="inscAInvitados">📋 Pasar a la lista de invitados</button><button type="button" class="btn-mini" id="inscCsv">⬇️ Descargar planilla</button></span>' : '') + '</div>' +
       (l.length ? '<div class="item-list">' + l.map(function (x) {
         return '<div class="item"><span class="num">' + x.personas.length + '</span><span style="flex:1"><b>' + esc(x.titular) + '</b>' + (x.tel ? ' · ' + esc(x.tel) : '') +
@@ -2982,24 +3084,52 @@
     socket.timeout(70000).emit('inscInfo', null, function (err, info) {
       if (err || !info) { m.innerHTML = '<div class="j-card center"><h2>No se pudo cargar</h2><p class="muted">Recargá la página en un minuto.</p></div>'; return; }
       var hechas = lsGet('mis-insc') || [];
-      var cab = '<div class="j-card center"><h2 style="margin:0">¡Anotate!</h2>' + (info.fecha ? '<p style="margin:8px 0 0;font-weight:800">📅 ' + esc(info.fecha) + '</p>' : '') + (info.texto ? '<p class="muted" style="margin:8px 0 0;line-height:1.5">' + esc(info.texto) + '</p>' : '') + '</div>';
+      var cab = '<div class="j-card center"><h2 style="margin:0">Confirmá tu asistencia</h2>' + (info.fecha ? '<p style="margin:8px 0 0;font-weight:800">📅 ' + esc(info.fecha) + '</p>' : '') + (info.texto ? '<p class="muted" style="margin:8px 0 0;line-height:1.5">' + esc(info.texto) + '</p>' : '') + '</div>';
       if (!info.abierta) { m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🔒</div><h2>La inscripción está cerrada</h2></div>'; return; }
+      var elegido = null, aManoInsc = !info.lista.length;
       var formulario = function () {
-        m.innerHTML = cab + (hechas.length ? '<p class="j-state ok" style="margin:0">✅ Desde este celular ya anotaste a: ' + hechas.map(esc).join(' · ') + '</p>' : '') +
+        m.innerHTML = cab + (hechas.length ? '<p class="j-state ok" style="margin:0">✅ Desde este celular ya confirmaste a: ' + hechas.map(esc).join(' · ') + '</p>' : '') +
           '<form id="fInsc" class="j-card" style="display:flex;flex-direction:column;gap:12px">' +
-          '<label class="field">Tu nombre y apellido<input class="j-input" id="inTitular" maxlength="40" autocomplete="name" required></label>' +
+          '<div id="inscQuien"></div>' +
           '<label class="field">Teléfono (opcional)<input class="j-input" id="inTel" maxlength="25" inputmode="tel" autocomplete="tel"></label>' +
-          '<div><p style="margin:0 0 6px;font-weight:700">¿Quiénes más vienen con vos?</p><div id="inscPersonas" style="display:flex;flex-direction:column;gap:8px"></div>' +
-          '<button type="button" class="btn-mini" id="inscMas" style="margin-top:8px">＋ Agregar otra persona</button></div>' +
+          '<div><p style="margin:0 0 6px;font-weight:700">¿Venís con alguien? (opcional)</p><div id="inscPersonas" style="display:flex;flex-direction:column;gap:8px"></div>' +
+          '<button type="button" class="btn-mini" id="inscMas" style="margin-top:8px">＋ Agregar acompañante</button></div>' +
           '<label class="field">Comentario (opcional)<textarea class="j-input" id="inComent" rows="2" maxlength="200"></textarea></label>' +
           '<p id="inscTotal" class="hint" style="margin:0;text-align:center"></p>' +
-          '<button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">Inscribirme</button></form>';
+          '<button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">✅ Confirmar asistencia</button></form>';
+        var quien = $('inscQuien');
+        var pintarQuien = function () {
+          if (elegido) {
+            quien.innerHTML = '<p style="margin:0 0 6px;font-weight:700">Confirmás como</p><div class="j-confirma" style="display:flex;align-items:center;gap:10px"><b style="flex:1;font-size:17px">' + esc(elegido[1]) + '</b><button type="button" class="btn-mini" id="inscCambiar">Cambiar</button></div>' +
+              (elegido[2] ? '<p class="hint" style="margin:6px 0 0">Ya habías confirmado: si enviás de nuevo, se actualizan tus datos.</p>' : '');
+            $('inscCambiar').onclick = function () { elegido = null; pintarQuien(); };
+          } else if (aManoInsc) {
+            quien.innerHTML = '<label class="field">Tu nombre y apellido<input class="j-input" id="inTitular" maxlength="40" autocomplete="name"></label>' +
+              (info.lista.length ? '<p class="hint" style="margin:6px 0 0"><button type="button" class="btn-mini" id="inscVolverLista">Buscarme en la lista</button></p>' : '');
+            if ($('inscVolverLista')) $('inscVolverLista').onclick = function () { aManoInsc = false; pintarQuien(); };
+          } else {
+            quien.innerHTML = '<label class="field">Buscá tu nombre<input class="j-input" id="inscBuscar" type="search" autocomplete="off" placeholder="🔎 Escribí tu nombre o apellido"></label><div id="inscRes" class="j-inv"></div>' +
+              (info.libre ? '<p class="hint" style="margin:6px 0 0"><button type="button" class="btn-mini" id="inscNoEstoy">No estoy en la lista</button></p>' : '');
+            var res = $('inscRes');
+            var buscar = function () {
+              var q = normNombre($('inscBuscar').value);
+              if (q.length < 2) { res.innerHTML = '<p class="hint" style="margin:6px 0 0">Escribí al menos 2 letras.</p>'; return; }
+              var partes = q.split(' ');
+              var l = info.lista.filter(function (x) { var n = normNombre(x[1]); return partes.every(function (p) { return n.indexOf(p) >= 0; }); }).slice(0, 20);
+              res.innerHTML = l.length ? l.map(function (x, i) { return '<button type="button" class="j-inv-op" data-ii="' + i + '"><span>' + esc(x[1]) + '</span><small>' + (x[2] ? '✅ ya confirmó' : 'Soy yo →') + '</small></button>'; }).join('') : '<p class="hint" style="margin:6px 0 0">No encontré ese nombre. Probá con tu apellido.</p>';
+              res.querySelectorAll('[data-ii]').forEach(function (b) { b.onclick = function () { elegido = l[Number(b.dataset.ii)]; pintarQuien(); }; });
+            };
+            $('inscBuscar').oninput = buscar; buscar();
+            if ($('inscNoEstoy')) $('inscNoEstoy').onclick = function () { aManoInsc = true; pintarQuien(); };
+          }
+        };
+        pintarQuien();
         var box = $('inscPersonas');
         var contar = function () { var n = 1 + Array.prototype.filter.call(box.querySelectorAll('input'), function (x) { return x.value.trim().length >= 2; }).length; $('inscTotal').textContent = 'Van a ser ' + n + (n === 1 ? ' persona' : ' personas'); };
         var agregar = function () {
           if (box.children.length >= 14) { toast('Máximo 15 personas por inscripción.'); return; }
           var d = document.createElement('div'); d.style.cssText = 'display:flex;gap:8px';
-          d.innerHTML = '<input class="j-input" maxlength="40" placeholder="Nombre y apellido" aria-label="Nombre de otra persona" style="flex:1"><button type="button" class="btn-mini danger" aria-label="Quitar">✕</button>';
+          d.innerHTML = '<input class="j-input" maxlength="40" placeholder="Nombre y apellido" aria-label="Nombre del acompañante" style="flex:1"><button type="button" class="btn-mini danger" aria-label="Quitar">✕</button>';
           d.querySelector('button').onclick = function () { d.remove(); contar(); };
           d.querySelector('input').oninput = contar;
           box.appendChild(d); d.querySelector('input').focus();
@@ -3007,15 +3137,17 @@
         $('inscMas').onclick = agregar; contar();
         $('fInsc').onsubmit = function (ev) {
           ev.preventDefault();
-          var titular = $('inTitular').value.trim();
+          var titular = elegido ? elegido[1] : ($('inTitular') ? $('inTitular').value.trim() : '');
+          if (!elegido && !$('inTitular')) { toast('Buscá tu nombre y tocalo.'); return; }
           if (titular.length < 3) { toast('Escribí tu nombre y apellido.'); return; }
           var personas = [titular].concat(Array.prototype.map.call(box.querySelectorAll('input'), function (x) { return x.value.trim(); }).filter(function (x) { return x.length >= 2; }));
           var b = this.querySelector('[type=submit]'); b.disabled = true; b.textContent = 'Enviando…';
-          socket.timeout(70000).emit('inscribir', { titular: titular, tel: $('inTel').value, personas: personas, comentario: $('inComent').value }, function (err, r) {
-            if (err || !r || !r.ok) { toast(esc((r && r.msg) || 'No se pudo enviar. Probá de nuevo.'), 6000); b.disabled = false; b.textContent = 'Inscribirme'; return; }
-            hechas = hechas.concat([titular]); lsSet('mis-insc', hechas);
-            m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🎉</div><h2>¡Listo, ' + esc(titular.split(' ')[0]) + '!</h2><p style="font-weight:700">Quedaron anotadas ' + r.n + (r.n === 1 ? ' persona' : ' personas') + '.</p><p class="muted" style="line-height:1.5">El día del evento, escaneá el QR del salón y buscá tu nombre para jugar.</p><button type="button" class="btn-mini" id="inscOtra">Anotar a otra familia</button></div>';
-            $('inscOtra').onclick = formulario;
+          socket.timeout(70000).emit('inscribir', { titular: titular, invitado: elegido ? elegido[0] : null, tel: $('inTel').value, personas: personas, comentario: $('inComent').value }, function (err, r) {
+            if (err || !r || !r.ok) { toast(esc((r && r.msg) || 'No se pudo enviar. Probá de nuevo.'), 6000); b.disabled = false; b.textContent = '✅ Confirmar asistencia'; return; }
+            if (hechas.indexOf(titular) < 0) hechas = hechas.concat([titular]); lsSet('mis-insc', hechas);
+            if (elegido) elegido[2] = 1;
+            m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🎉</div><h2>¡Gracias, ' + esc(titular.split(' ')[0]) + '!</h2><p style="font-weight:700">' + (r.actualizada ? 'Actualizamos tu confirmación: ' : 'Asistencia confirmada: ') + r.n + (r.n === 1 ? ' persona' : ' personas') + '.</p><p class="muted" style="line-height:1.5">El día del evento, escaneá el QR del salón y buscá tu nombre para jugar.</p><button type="button" class="btn-mini" id="inscOtra">Confirmar a otra persona</button></div>';
+            $('inscOtra').onclick = function () { elegido = null; formulario(); };
           });
         };
       };

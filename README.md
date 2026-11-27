@@ -43,8 +43,8 @@ Así cada uno juega con sus propios datos móviles y no dependés del wifi del c
 
 ## Cómo se juega
 
-1. **📋 Invitados:** cargá la lista escribiendo los nombres o subiendo un **Excel (.xlsx) o CSV**, con los nombres en la primera columna. Si hay columnas "Nombre" y "Apellido", se juntan solas. En el celular, cada invitado busca su nombre y lo toca. Podés dejar entrar también a quien no está en la lista.
-2. **👥 Equipos:** hay tres equipos fijos: **Azul, Gris y Blanco**. Cada jugador que entra queda en el equipo con menos gente, **sin saber cuál es**. Cuando quieras, tocá **🎭 Develar los equipos**: aparecen en el proyector y cada celular se pinta con el color de su equipo. Podés mover jugadores a mano o **🔀 repartir de nuevo**.
+1. **📋 Invitados:** cargá la lista escribiendo los nombres o subiendo un **Excel (.xlsx) o CSV**. Se leen **todas las hojas**: las columnas extra (sector, contrato…) y los títulos en negrita de una hoja de una sola columna (por ejemplo, la disciplina de cada profesor) se guardan como **grupos**. Las personas repetidas entre hojas se unifican, aunque estén escritas "Apellido Nombre" o "Nombre Apellido". En el celular, cada invitado busca su nombre y lo toca. Podés dejar entrar también a quien no está en la lista.
+2. **👥 Equipos:** hay tres equipos fijos: **Azul, Gris y Blanco**. Cada jugador que entra queda en un equipo **sin saber cuál es**. Los equipos quedan parejos en cantidad y **mezclados**: la gente del mismo sector, contrato o disciplina se reparte entre los tres. En la pestaña Equipos, la tabla **Mezcla de los equipos** muestra cuántos de cada grupo hay en cada uno. Cuando quieras, tocá **🎭 Develar los equipos**: aparecen en el proyector y cada celular se pinta con el color de su equipo. Podés mover jugadores a mano o **🔀 repartir de nuevo**.
 3. **Inicio:** abrí el proyector desde la consola. Cada persona escanea el QR y entra con su nombre. Desde el celular puede **📲 instalar la app** en su pantalla de inicio (en iPhone: Compartir → Agregar a inicio). En Inicio el proyector rota entre las tablas, el buffet y los precios.
 4. **Juego en vivo:** elegí la ronda y tocá **▶ Lanzar**. Arriba de la lista podés cambiar los **segundos para responder** y los **puntos a repartir** de la ronda. Responde **cada jugador** desde su celular.
 5. **Desafíos de foto:** los equipos sacan la foto desde el celu y te llega a la consola para aprobarla.
@@ -76,9 +76,9 @@ Las imágenes que subís quedan guardadas en la compu de la consola y se vuelven
 
 Para ensayar sin celulares: pestaña **Equipos** → **🤖 Agregar jugadores de prueba**. Suma 3 jugadores simulados a cada equipo, que responden solos.
 
-## Inscripción previa
+## Confirmación de asistencia
 
-En la consola, pestaña **📝 Inscripción**, está el link (y su QR) para que cada familia se anote antes de la fecha: titular, teléfono y quiénes vienen. Ves el total de personas, podés descargar la planilla y **pasar a todos a la lista de invitados** con un botón.
+En la consola, pestaña **📝 Inscripción**, está el link (y su QR) para confirmar asistencia antes de la fecha: cada uno busca su nombre en la lista de invitados, lo toca y puede sumar acompañantes. Ves el total de personas, podés descargar la planilla y **pasar a todos a la lista de invitados** con un botón.
 
 Las inscripciones se guardan en el servidor y la consola guarda una copia. En el plan gratis de Render, si el servidor se reinicia, al abrir la consola se vuelven a cargar desde esa copia. Por eso conviene abrir la consola cada tanto mientras la inscripción esté abierta.
 

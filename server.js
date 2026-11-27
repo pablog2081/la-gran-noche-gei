@@ -188,7 +188,7 @@ app.get('/tarjetas', (req, res) => {
 // ---------- Tiempo real ----------
 const pendientes = new Map(); // id de acción → callback del celular
 let proximoId = 1;
-const publicos = {};          // listas que la consola comparte a pedido (invitados, temas)
+const publicos = leer('publicos.json') || {};   // listas que la consola comparte a pedido (invitados, temas, pruebas)
 const ID_TEMA = /^spotify:track:[A-Za-z0-9]{22}$/;
 
 function consolaActiva() {
@@ -257,7 +257,13 @@ io.on('connection', socket => {
 
   // ---- Inscripción previa ----
   const limpiar = (t, n) => String(t == null ? '' : t).replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
-  socket.on('inscInfo', (_, cb) => { if (typeof cb === 'function') cb({ abierta: !!insc.cfg.abierta, fecha: insc.cfg.fecha, texto: insc.cfg.texto }); });
+  const listaInv = () => (publicos.invitados && Array.isArray(publicos.invitados.lista)) ? publicos.invitados.lista : [];
+  socket.on('inscInfo', (_, cb) => {
+    if (typeof cb !== 'function') return;
+    const conf = new Set(insc.lista.map(x => x.invitado).filter(Boolean));
+    const lista = listaInv().map(x => [x[0], x[1], conf.has(x[0]) ? 1 : 0]);
+    cb({ abierta: !!insc.cfg.abierta, fecha: insc.cfg.fecha, texto: insc.cfg.texto, lista, libre: !lista.length || !!(publicos.invitados && publicos.invitados.abierto) });
+  });
   socket.on('inscribir', (d, cb) => {
     if (typeof cb !== 'function' || !d) return;
     if (!insc.cfg.abierta) return cb({ ok: false, msg: 'La inscripción está cerrada.' });
@@ -265,15 +271,23 @@ io.on('connection', socket => {
     const ahora = Date.now();
     const recientes = insc.lista.filter(x => x.ip === ip && ahora - x.t < 10 * 60000).length;
     if (recientes >= 8) return cb({ ok: false, msg: 'Hiciste muchas inscripciones seguidas. Probá en un rato.' });
-    const titular = limpiar(d.titular, 40);
+    let titular = limpiar(d.titular, 40), invitado = null;
+    if (d.invitado) {
+      const inv = listaInv().find(x => x[0] === d.invitado);
+      if (!inv) return cb({ ok: false, msg: 'No encontré ese nombre en la lista. Recargá la página.' });
+      invitado = inv[0]; titular = inv[1];
+    } else if (listaInv().length && !(publicos.invitados && publicos.invitados.abierto)) return cb({ ok: false, msg: 'Buscá tu nombre en la lista.' });
     if (titular.length < 3) return cb({ ok: false, msg: 'Escribí tu nombre y apellido.' });
     let personas = (Array.isArray(d.personas) ? d.personas : []).map(x => limpiar(x, 40)).filter(x => x.length >= 2).slice(0, 15);
     if (!personas.some(x => x.toLowerCase() === titular.toLowerCase())) personas.unshift(titular);
     personas = personas.slice(0, 15);
-    const item = { id: crypto.randomBytes(6).toString('hex'), t: ahora, titular, tel: limpiar(d.tel, 25), personas, comentario: limpiar(d.comentario, 200), ip };
-    insc.lista.push(item); guardar('inscripciones.json', insc);
+    const item = { id: crypto.randomBytes(6).toString('hex'), t: ahora, titular, invitado, tel: limpiar(d.tel, 25), personas, comentario: limpiar(d.comentario, 200), ip };
+    // si la persona ya había confirmado, se reemplaza su confirmación (no se duplica)
+    const previa = invitado ? insc.lista.findIndex(x => x.invitado === invitado) : -1;
+    if (previa >= 0) { item.id = insc.lista[previa].id; insc.lista[previa] = item; } else insc.lista.push(item);
+    guardar('inscripciones.json', insc);
     io.to('consola').emit('inscripciones', insc.lista);
-    cb({ ok: true, id: item.id, n: personas.length });
+    cb({ ok: true, id: item.id, n: personas.length, actualizada: previa >= 0 });
   });
   socket.on('inscCfg', cfg => { if (!socket.data.admin || !cfg) return; insc.cfg = { abierta: !!cfg.abierta, fecha: limpiar(cfg.fecha, 60), texto: limpiar(cfg.texto, 300) }; guardar('inscripciones.json', insc); });
   socket.on('inscBorrar', id => { if (!socket.data.admin) return; insc.lista = insc.lista.filter(x => x.id !== id); guardar('inscripciones.json', insc); io.to('consola').emit('inscripciones', insc.lista); });
@@ -288,7 +302,7 @@ io.on('connection', socket => {
   });
 
   // Listas que los celulares piden cuando las necesitan (para no mandarlas en cada actualización)
-  socket.on('publico', m => { if (socket.data.admin && m && /^[a-z]{3,20}$/.test(m.clave || '')) publicos[m.clave] = m.datos; });
+  socket.on('publico', m => { if (socket.data.admin && m && /^[a-z]{3,20}$/.test(m.clave || '')) { publicos[m.clave] = m.datos; guardar('publicos.json', publicos); } });
   socket.on('pedirPublico', (clave, cb) => { if (typeof cb === 'function') cb(publicos[String(clave)] || null); });
 
   // ---- Spotify ----
