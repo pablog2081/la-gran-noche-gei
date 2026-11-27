@@ -1,0 +1,17 @@
+{
+  "name": "la-gran-noche-gei",
+  "version": "1.0.0",
+  "description": "La gran noche de la familia GEI: juegos por equipos (Azul, Gris y Blanco) con consola, proyector y celulares.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode-generator": "^1.4.4",
+    "socket.io": "^4.8.1"
+  }
+}
