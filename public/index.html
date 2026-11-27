@@ -595,24 +595,37 @@
   .jz-notas button { border: 2px solid rgba(0,0,0,.15); border-radius: 10px; padding: 9px 0; background: rgba(255,255,255,.92); color: #16283A; font-size: 18px; font-weight: 900; cursor: pointer; }
   .jz-notas button.on { background: var(--gold); border-color: #16283A; }
   .p-anuncio-eqs small { display: block; font-size: 2.6vh; font-weight: 700; opacity: .85; }
-  /* Página de confirmación con el flyer del evento */
-  body.mode-inscripcion { background: #eeedeb; }
+  /* Página de confirmación: misma gráfica que el flyer del evento */
+  @font-face { font-family: 'Baloo 2'; font-weight: 800; font-display: swap; src: url('/fonts/baloo-2-latin-800-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Outfit'; font-weight: 500; font-display: swap; src: url('/fonts/outfit-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Outfit'; font-weight: 700; font-display: swap; src: url('/fonts/outfit-latin-700-normal.woff2') format('woff2'); }
+  body.mode-inscripcion { background: #f0efed url('/fondo-flyer.jpg') repeat; color: #1b1b1b; font-family: 'Outfit', 'Libre Franklin', sans-serif; }
   body.mode-inscripcion #inscripcion > .j-head { display: none; }
-  body.mode-inscripcion #inscripcion { padding-top: 0; }
+  body.mode-inscripcion #inscripcion { padding-top: 0; padding-bottom: 215px; position: relative; }
   .insc-flyer { margin: 0 -16px; }
   .insc-flyer img { display: block; width: 100%; height: auto; }
-  .globos { margin: 4px 0 0; text-align: center; font-family: 'Fredoka', 'Archivo Black', sans-serif; font-weight: 700; font-size: clamp(46px, 15vw, 74px); line-height: .95; letter-spacing: .01em;
-    background: linear-gradient(180deg, #9cc9ff 0%, #3d86f0 22%, #1556c9 48%, #0a3a9c 70%, #2f74e0 88%, #8dbdff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
-    -webkit-text-stroke: 1.5px #0b2f7a; filter: drop-shadow(0 4px 0 rgba(10,40,110,.35)) drop-shadow(0 10px 14px rgba(0,30,90,.25)); }
-  .insc-copy { text-align: center; color: #1b2a3a; font-size: 17px; line-height: 1.5; }
+  .globos { margin: -4px 0 0; min-height: 120px; }
+  .globos-svg { display: block; width: 92%; height: auto; margin: 0 auto; overflow: visible; }
+  .insc-copy { text-align: center; color: #1b1b1b; font-size: 18px; line-height: 1.45; font-weight: 500; }
   .insc-copy p { margin: 8px 0; }
-  .insc-copy b { color: #0d4fb8; }
-  .insc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0; }
-  .insc-chips span { background: #fff; border: 1.5px solid #c9d8f2; color: #0d4fb8; font-weight: 800; font-size: 15px; padding: 6px 12px; border-radius: 99px; }
-  .insc-cierre { font-weight: 800; font-size: 19px; color: #0d4fb8 !important; }
-  body.mode-inscripcion .j-card { background: #fff; color: #1b2a3a; }
-  body.mode-inscripcion .j-card .hint, body.mode-inscripcion .j-card .muted, body.mode-inscripcion .j-card .field { color: #5b6b7a; }
-  body.mode-inscripcion .j-input { background: #f6f7f9; color: #1b2a3a; }
+  .insc-copy b { color: #1c5bb5; font-weight: 700; }
+  .insc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0; }
+  .insc-chips span { background: rgba(255,255,255,.85); border: 2px solid #1c5bb5; color: #1c5bb5; font-weight: 700; font-size: 15px; padding: 6px 14px; border-radius: 99px; }
+  .insc-cierre { font-weight: 700; font-size: 21px; color: #1c5bb5 !important; }
+  body.mode-inscripcion .j-card { background: rgba(255,255,255,.9); color: #1b1b1b; border: 0; box-shadow: 0 10px 30px -12px rgba(20,40,80,.35); border-radius: 22px; }
+  body.mode-inscripcion .j-card h2 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #1c5bb5; }
+  body.mode-inscripcion .j-card .hint, body.mode-inscripcion .j-card .muted, body.mode-inscripcion .j-card .field { color: #555; font-family: 'Outfit', sans-serif; }
+  body.mode-inscripcion .j-input { background: #fff; color: #1b1b1b; border: 2px solid #c9d6ea; font-family: 'Outfit', sans-serif; font-size: 17px; }
+  body.mode-inscripcion .j-input:focus { border-color: #1c5bb5; outline: none; }
+  body.mode-inscripcion .j-inv-op { background: #fff; color: #1b1b1b; border: 2px solid #dde5f2; font-family: 'Outfit', sans-serif; }
+  body.mode-inscripcion .j-inv-op small { color: #1c5bb5; }
+  body.mode-inscripcion .j-confirma { background: #fff; border-color: #1c5bb5; }
+  body.mode-inscripcion .btn-gold { background: linear-gradient(180deg, #3f86f2, #1556c9 55%, #0d44a8); color: #fff; border: 0; box-shadow: 0 6px 0 #0a2f78, 0 12px 20px -6px rgba(10,40,110,.5); font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: .02em; }
+  body.mode-inscripcion .btn-mini { border-color: #1c5bb5; color: #1c5bb5; background: #fff; font-family: 'Outfit', sans-serif; }
+  body.mode-inscripcion .j-state.ok { background: rgba(28,91,181,.1); color: #1c5bb5; }
+  .insc-micro { position: absolute; left: -16px; bottom: 0; width: 110px; pointer-events: none; }
+  .insc-micro img { display: block; width: 100%; height: auto; mix-blend-mode: darken; }
+  @media (min-width: 560px) { .insc-micro { left: -140px; width: 140px; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -739,6 +752,7 @@
     <div><p class="eyebrow">Inscripción · Club GEI</p><h1>La gran noche de la <span>familia GEI</span></h1></div>
   </div>
   <div id="inscMain"></div>
+  <div class="insc-micro" aria-hidden="true"><img src="/flyer-micro.jpg" alt=""></div>
 </div>
 
 <audio id="musica" preload="none"></audio>
@@ -3243,6 +3257,61 @@
     };
   }
 
+  // Letras de globo como las del flyer: cada letra es un "globo" separado (SVG con luces y sombra)
+  var nGlobo = 0;
+  function letrasGlobo(lineas, opts) {
+    opts = opts || {};
+    var fs = 150, alto = 165, sx = 0.9, solape = 0.1, id = 'glb' + (++nGlobo);
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'globos-svg'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', lineas.join(' '));
+    svg.innerHTML = '<defs><filter id="' + id + '" x="-25%" y="-25%" width="150%" height="160%" color-interpolation-filters="sRGB">' +
+      '<feMorphology in="SourceAlpha" operator="dilate" radius="3" result="fat"/>' +
+      '<feGaussianBlur in="fat" stdDeviation="8" result="blur"/>' +
+      '<feDiffuseLighting in="blur" surfaceScale="10" diffuseConstant="1" lighting-color="#ffffff" result="diff"><feDistantLight azimuth="225" elevation="28"/></feDiffuseLighting>' +
+      '<feComposite in="diff" in2="fat" operator="in" result="diffIn"/>' +
+      '<feFlood flood-color="#1d63e4"/><feComposite in2="fat" operator="in" result="base"/>' +
+      '<feComposite in="base" in2="diffIn" operator="arithmetic" k1="1.25" k2="0" k3="0" k4="0" result="shaded"/>' +
+      '<feSpecularLighting in="blur" surfaceScale="10" specularConstant="1.5" specularExponent="35" lighting-color="#e9f4ff" result="spec"><feDistantLight azimuth="225" elevation="60"/></feSpecularLighting>' +
+      '<feComposite in="spec" in2="fat" operator="in" result="specIn"/>' +
+      '<feComposite in="specIn" in2="shaded" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="lit"/>' +
+      '<feMorphology in="fat" operator="dilate" radius="1.6" result="edge"/>' +
+      '<feFlood flood-color="#08245e"/><feComposite in2="edge" operator="in" result="edgeC"/>' +
+      '<feGaussianBlur in="edge" stdDeviation="3" result="sh0"/><feOffset in="sh0" dy="6" result="sh1"/><feFlood flood-color="#0b1d40" flood-opacity=".4"/><feComposite in2="sh1" operator="in" result="sh"/>' +
+      '<feMerge><feMergeNode in="sh"/><feMergeNode in="edgeC"/><feMergeNode in="lit"/></feMerge></filter></defs>';
+    document.body.appendChild(svg);   // hay que medir las letras ya dibujadas
+    var anchoMax = 0, filas = [];
+    lineas.forEach(function (linea, li) {
+      var x = 0, letras = [];
+      Array.prototype.forEach.call(linea, function (ch) {
+        if (ch === ' ') { x += fs * 0.28; return; }
+        var t = document.createElementNS(ns, 'text');
+        t.setAttribute('font-family', "'Baloo 2', 'Fredoka', sans-serif"); t.setAttribute('font-weight', '800'); t.setAttribute('font-size', fs);
+        t.setAttribute('filter', 'url(#' + id + ')'); t.textContent = ch;
+        svg.appendChild(t);
+        var w = t.getComputedTextLength() * sx;
+        letras.push({ t: t, x: x, w: w }); x += w * (1 - solape);
+      });
+      var ancho = letras.length ? letras[letras.length - 1].x + letras[letras.length - 1].w : 0;
+      anchoMax = Math.max(anchoMax, ancho); filas.push({ letras: letras, ancho: ancho, y: (li + 1) * alto - 30 });
+    });
+    filas.forEach(function (f) {
+      var dx = (anchoMax - f.ancho) / 2 + 20;
+      f.letras.forEach(function (l, i) {
+        // un poco de vaivén, como globos de verdad
+        var rot = ((i * 37) % 7 - 3) * 0.9;
+        l.t.setAttribute('transform', 'translate(' + (dx + l.x).toFixed(1) + ' ' + f.y + ') rotate(' + rot + ' ' + (l.w / 2).toFixed(1) + ' -50) scale(' + sx + ' 1)');
+      });
+    });
+    svg.setAttribute('viewBox', '0 0 ' + Math.ceil(anchoMax + 40) + ' ' + (lineas.length * alto + 10));
+    svg.parentNode.removeChild(svg);
+    return svg;
+  }
+  function pintarGlobos() {
+    var box = $('inscGlobos'); if (!box) return;
+    var poner = function () { if (!box.isConnected) return; box.innerHTML = ''; box.appendChild(letrasGlobo(['¡CONFIRMÁ', 'ACÁ!'])); };
+    if (document.fonts && document.fonts.load) document.fonts.load("800 50px 'Baloo 2'").then(poner, poner); else poner();
+  }
   // ---- Página pública de inscripción (/inscripcion) ----
   function renderInscPublica() {
     var m = $('inscMain');
@@ -3252,19 +3321,17 @@
       var hechas = lsGet('mis-insc') || [];
       // Flyer del evento (con fecha y lugar) + "¡Confirmá acá!" en globos
       var cab = '<div class="insc-flyer"><img src="/flyer-inscripcion.jpg" alt="¡Una noche para celebrar juntos! Jueves 3 de diciembre, 20 hs, Anexo Niceto. Club GEI"></div>' +
-        '<h2 class="globos" aria-label="¡Confirmá acá!">¡CONFIRMÁ<br>ACÁ!</h2>' +
+        '<div class="globos" id="inscGlobos" role="img" aria-label="¡Confirmá acá!"></div>' +
         '<div class="insc-copy"><p>👟 Traé <b>ropa cómoda</b> y venite a <b>jugar</b>, divertirte y <b>competir con tu equipo por regalos</b>.</p>' +
         '<div class="insc-chips"><span>🎁 Sorteos sorpresa</span><span>🎶 Música</span><span>🎉 Mucha diversión</span></div>' +
         '<p class="insc-cierre">💙 ¡Te lo merecés! No te lo pierdas.</p>' +
         (info.texto ? '<p class="muted">' + esc(info.texto) + '</p>' : '') + '</div>';
-      if (!info.abierta) { m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🔒</div><h2>La inscripción está cerrada</h2></div>'; return; }
+      if (!info.abierta) { m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🔒</div><h2>La inscripción está cerrada</h2></div>'; pintarGlobos(); return; }
       var elegido = null, aManoInsc = !info.lista.length;
       var formulario = function () {
         m.innerHTML = cab + (hechas.length ? '<p class="j-state ok" style="margin:0">✅ Desde este celular ya confirmaste a: ' + hechas.map(esc).join(' · ') + '</p>' : '') +
           '<form id="fInsc" class="j-card" style="display:flex;flex-direction:column;gap:12px">' +
           '<div id="inscQuien"></div>' +
-          '<label class="field">Teléfono (opcional)<input class="j-input" id="inTel" maxlength="25" inputmode="tel" autocomplete="tel"></label>' +
-          '<label class="field">Comentario (opcional)<textarea class="j-input" id="inComent" rows="2" maxlength="200"></textarea></label>' +
           '<button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">✅ Confirmar asistencia</button></form>';
         var quien = $('inscQuien');
         var pintarQuien = function () {
@@ -3292,7 +3359,7 @@
             if ($('inscNoEstoy')) $('inscNoEstoy').onclick = function () { aManoInsc = true; pintarQuien(); };
           }
         };
-        pintarQuien();
+        pintarQuien(); pintarGlobos();
         $('fInsc').onsubmit = function (ev) {
           ev.preventDefault();
           var titular = elegido ? elegido[1] : ($('inTitular') ? $('inTitular').value.trim() : '');
@@ -3300,11 +3367,12 @@
           if (titular.length < 3) { toast('Escribí tu nombre y apellido.'); return; }
           var personas = [titular];
           var b = this.querySelector('[type=submit]'); b.disabled = true; b.textContent = 'Enviando…';
-          socket.timeout(70000).emit('inscribir', { titular: titular, invitado: elegido ? elegido[0] : null, tel: $('inTel').value, personas: personas, comentario: $('inComent').value }, function (err, r) {
+          socket.timeout(70000).emit('inscribir', { titular: titular, invitado: elegido ? elegido[0] : null, tel: '', personas: personas, comentario: '' }, function (err, r) {
             if (err || !r || !r.ok) { toast(esc((r && r.msg) || 'No se pudo enviar. Probá de nuevo.'), 6000); b.disabled = false; b.textContent = '✅ Confirmar asistencia'; return; }
             if (hechas.indexOf(titular) < 0) hechas = hechas.concat([titular]); lsSet('mis-insc', hechas);
             if (elegido) elegido[2] = 1;
             m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🎉</div><h2>¡Gracias, ' + esc(titular.split(' ')[0]) + '!</h2><p style="font-weight:700">' + (r.actualizada ? 'Ya estabas confirmado: actualizamos tus datos.' : '¡Tu asistencia quedó confirmada!') + '</p><p class="muted" style="line-height:1.5">El día del evento, escaneá el QR del salón y buscá tu nombre para jugar.</p><button type="button" class="btn-mini" id="inscOtra">Confirmar a otra persona</button></div>';
+            pintarGlobos();
             $('inscOtra').onclick = function () { elegido = null; formulario(); };
           });
         };
