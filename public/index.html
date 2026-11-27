@@ -581,6 +581,20 @@
   .mezcla th, .mezcla td { padding: 6px 10px; border-bottom: 1px solid var(--cell-border); text-align: center; white-space: nowrap; }
   .mezcla th:first-child, .mezcla td:first-child { text-align: left; }
   .mezcla thead th { position: sticky; top: 0; background: var(--bg-alt); }
+  .p-img.efx { height: 100%; width: auto; max-width: 100%; object-fit: contain; }
+  .j-media canvas { max-height: 30vh; max-width: 100%; }
+  .p-img.revela-efx { animation: pop .7s ease both; }
+  .jz-pruebas { display: flex; flex-direction: column; gap: 10px; }
+  .jz-prueba-card { border: 1px solid var(--cell-border); background: var(--cell-bg); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .jz-fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .jz-nombre { flex: 1; min-width: 200px; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--cell-border); background: var(--bg); color: var(--ink); font-weight: 800; }
+  .jz-prueba-card select, .jz-pts select { padding: 7px 8px; border-radius: 8px; border: 1px solid var(--cell-border); background: var(--bg); color: var(--ink); font-weight: 700; }
+  .jz-reglas { width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--cell-border); background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; resize: vertical; }
+  .jz-regla { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--cell-bg); font-size: 14px; line-height: 1.45; }
+  .jz-notas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .jz-notas button { border: 2px solid rgba(0,0,0,.15); border-radius: 10px; padding: 9px 0; background: rgba(255,255,255,.92); color: #16283A; font-size: 18px; font-weight: 900; cursor: pointer; }
+  .jz-notas button.on { background: var(--gold); border-color: #16283A; }
+  .p-anuncio-eqs small { display: block; font-size: 2.6vh; font-weight: 700; opacity: .85; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -720,27 +734,9 @@
   var CLUB_SPORTS = [
     { key: 'gei', label: 'GEI', eyebrow: 'Club GEI', src: 'club-logo-gei.png' }
   ];
-  var BUFFET = [
-    { key: 'tarta', cat: 'comida', label: 'Tarta', img: 'buffet-tarta.png' },
-    { key: 'torta', cat: 'comida', label: 'Torta', img: 'buffet-torta.png' },
-    { key: 'pizza-porcion', cat: 'comida', label: 'Porción de Pizza', img: 'buffet-pizza-porcion.png' },
-    { key: 'pizza-entera', cat: 'comida', label: 'Pizza Entera', img: 'buffet-pizza-entera.png' },
-    { key: 'papas', cat: 'comida', label: 'Papas Fritas', img: 'buffet-papas.png' },
-    { key: 'pancho', cat: 'comida', label: 'Pancho', img: 'buffet-pancho.png' },
-    { key: 'hamburguesa', cat: 'comida', label: 'Hamburguesa', img: 'buffet-hamburguesa.png' },
-    { key: 'empanadas', cat: 'comida', label: 'Empanadas', img: 'buffet-empanadas.png' },
-    { key: 'gaseosa', cat: 'bebida', label: 'Gaseosa', img: 'buffet-gaseosa.png' },
-    { key: 'vino-copa', cat: 'bebida', label: 'Copa de Vino', img: 'buffet-vino-copa.png' },
-    { key: 'vino-botella', cat: 'bebida', label: 'Botella de Vino', img: 'buffet-vino-botella.png' },
-    { key: 'cafe', cat: 'bebida', label: 'Café', img: 'buffet-cafe.png' },
-    { key: 'agua-saborizada', cat: 'bebida', label: 'Agua Saborizada', img: 'buffet-agua-saborizada.png' },
-    { key: 'agua', cat: 'bebida', label: 'Agua', img: 'buffet-agua.png' }
-  ];
-  var PRECIOS_NOCHE = [
-    { key: 'inscripcion', label: 'Inscripción por equipo', emoji: '🧠' },
-    { key: 'entrada', label: 'Entrada por persona', emoji: '🎟️' },
-    { key: 'menu', label: 'Menú para la mesa', emoji: '🍕' }
-  ];
+  // Sin buffet ni precios en esta noche
+  var BUFFET = [];
+  var PRECIOS_NOCHE = [];
   var LETRAS = ['A', 'B', 'C', 'D'];
   var TEMAS = [
     { key: 'tambo', titulo: 'Tambo Tambo - La Cumbita' },
@@ -838,7 +834,7 @@
       { id: 'r12', nombre: 'Marcas por el logo', tipo: 'preguntas', tiempo: 15, doble: false, tipoNuevo: 'imagen', textoNuevo: '¿De qué marca es este logo?', items: [] }
     ],
     tesoro: [
-      { id: 't1', codigo: 'PELOTA', lugar: 'Debajo de la barra del buffet', puntos: 200, pista: 'La próxima está donde se guardan las pelotas.' },
+      { id: 't1', codigo: 'PELOTA', lugar: 'Debajo de la barra de la cantina', puntos: 200, pista: 'La próxima está donde se guardan las pelotas.' },
       { id: 't2', codigo: 'ESCUDO', lugar: 'Depósito de pelotas', puntos: 200, pista: 'Busquen cerca del escudo del club.' },
       { id: 't3', codigo: 'CAMISETA', lugar: 'Al lado del escudo del club', puntos: 200, pista: 'La próxima espera en la puerta de los vestuarios.' },
       { id: 't4', codigo: 'SILBATO', lugar: 'Puerta de los vestuarios', puntos: 200, pista: 'Miren donde se anota el tanteador.' },
@@ -909,16 +905,21 @@
   var db = null, usuario = null;
   var V = null;           // última vista pública recibida
   var relojOffset = 0;    // diferencia con el reloj de la consola
+  // 3 preguntas por actividad del club (una de aproximación) + el juego de imágenes distorsionadas
+  var RONDAS_ACTIVIDADES = [{"id": "act-basquet", "nombre": "🏀 Básquet", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "abasquet1", "tipo": "opcion", "texto": "¿Cuántos jugadores por equipo hay en cancha en un partido de básquet?", "opciones": ["4", "5", "6", "7"], "correcta": 1}, {"id": "abasquet2", "tipo": "opcion", "texto": "¿Cuántos segundos tiene un equipo para tirar al aro en cada ataque?", "opciones": ["14", "24", "30", "35"], "correcta": 1, "dato": "Es la regla de la posesión: si no tiran en 24 segundos, la pelota pasa al rival."}, {"id": "abasquet3", "tipo": "estimacion", "texto": "¿A qué altura está el aro de básquet?", "respuesta": 305, "unidad": "centímetros", "tiempo": 30, "dato": "Son 3,05 metros (10 pies), igual para hombres y mujeres."}]}, {"id": "act-esgrima", "nombre": "🤺 Esgrima", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "aesgrima1", "tipo": "opcion", "texto": "¿Cuáles son las tres armas de la esgrima?", "opciones": ["Florete, espada y sable", "Florete, sable y daga", "Espada, lanza y sable", "Estoque, florete y daga"], "correcta": 0}, {"id": "aesgrima2", "tipo": "opcion", "texto": "¿Con qué palabra el árbitro da comienzo al combate?", "opciones": ["¡Touché!", "¡Allez!", "¡Vamos!", "¡Pronto!"], "correcta": 1, "dato": "Las voces de la esgrima son en francés: «En garde… Prêts? Allez!»"}, {"id": "aesgrima3", "tipo": "estimacion", "texto": "¿Cuántos metros mide de largo la pista de esgrima?", "respuesta": 14, "unidad": "metros", "tiempo": 30}]}, {"id": "act-entrenamientofuncional", "nombre": "💪 Entrenamiento Funcional", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "aentrenam1", "tipo": "opcion", "texto": "¿Qué significa la sigla HIIT?", "opciones": ["Entrenamiento por intervalos de alta intensidad", "Hidratación intensa antes del entrenamiento", "Gimnasia de bajo impacto", "Rutina de pesas libres"], "correcta": 0, "dato": "Viene del inglés High Intensity Interval Training."}, {"id": "aentrenam2", "tipo": "opcion", "texto": "¿Qué tipo de ejercicio es la «plancha»?", "opciones": ["Isométrico: se mantiene la posición sin moverse", "Aeróbico de carrera", "De salto", "De elongación pasiva"], "correcta": 0}, {"id": "aentrenam3", "tipo": "estimacion", "texto": "En el método Tabata, ¿cuántos minutos dura un bloque completo?", "respuesta": 4, "unidad": "minutos", "tiempo": 30, "dato": "Son 8 rondas de 20 segundos de trabajo y 10 de descanso."}]}, {"id": "act-futbol", "nombre": "⚽ Fútbol", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "afutbol1", "tipo": "opcion", "texto": "¿Cuántas Copas del Mundo ganó la Selección Argentina?", "opciones": ["1", "2", "3", "4"], "correcta": 2, "dato": "1978, 1986 y 2022."}, {"id": "afutbol2", "tipo": "opcion", "texto": "¿Cuánto dura un partido de fútbol oficial, sin contar el descuento?", "opciones": ["60 minutos", "80 minutos", "90 minutos", "100 minutos"], "correcta": 2}, {"id": "afutbol3", "tipo": "estimacion", "texto": "¿A cuántos metros del arco está el punto penal?", "respuesta": 11, "unidad": "metros", "tiempo": 30}]}, {"id": "act-gimnasiaritmica", "nombre": "🎀 Gimnasia Rítmica", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "agimnasia1", "tipo": "opcion", "texto": "¿Cuál de estos NO es un aparato de la gimnasia rítmica?", "opciones": ["Aro", "Cinta", "Clavas", "Barra de equilibrio"], "correcta": 3, "dato": "Los aparatos son cuerda, aro, pelota, clavas y cinta. La barra es de la gimnasia artística."}, {"id": "agimnasia2", "tipo": "opcion", "texto": "¿Sobre qué superficie se compite en gimnasia rítmica?", "opciones": ["Un tapiz", "Una viga", "Un trampolín", "Un parquet de madera"], "correcta": 0}, {"id": "agimnasia3", "tipo": "estimacion", "texto": "¿Cuántos metros por lado mide el tapiz de competencia?", "respuesta": 13, "unidad": "metros", "tiempo": 30, "dato": "Es un cuadrado de 13 × 13 metros."}]}, {"id": "act-gimnasioniceto", "nombre": "🏋️ Gimnasio Niceto", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "agimnasio1", "tipo": "opcion", "texto": "¿Qué músculo trabaja principalmente la sentadilla?", "opciones": ["Bíceps", "Cuádriceps", "Tríceps", "Dorsal"], "correcta": 1}, {"id": "agimnasio2", "tipo": "opcion", "texto": "¿Qué grupo muscular se entrena con el press de banca?", "opciones": ["Pectorales", "Abdominales", "Gemelos", "Glúteos"], "correcta": 0}, {"id": "agimnasio3", "tipo": "estimacion", "texto": "¿Cuántos kilos pesa una barra olímpica de hombres, sin discos?", "respuesta": 20, "unidad": "kilos", "tiempo": 30}]}, {"id": "act-handball", "nombre": "🤾 Handball", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ahandball1", "tipo": "opcion", "texto": "¿Cuántos jugadores por equipo hay en cancha, contando al arquero?", "opciones": ["5", "6", "7", "8"], "correcta": 2}, {"id": "ahandball2", "tipo": "opcion", "texto": "¿Cuántos pasos puede dar un jugador con la pelota en la mano sin picarla?", "opciones": ["2", "3", "4", "5"], "correcta": 1}, {"id": "ahandball3", "tipo": "estimacion", "texto": "¿Cuántos metros mide de largo una cancha de handball?", "respuesta": 40, "unidad": "metros", "tiempo": 30, "dato": "La cancha es de 40 × 20 metros."}]}, {"id": "act-hockeysobrecesped", "nombre": "🏑 Hockey sobre césped", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ahockeyso1", "tipo": "opcion", "texto": "¿Con qué parte del palo se puede jugar la bocha?", "opciones": ["Solo con el lado plano", "Con los dos lados", "Solo con la punta", "Con el mango"], "correcta": 0}, {"id": "ahockeyso2", "tipo": "opcion", "texto": "¿Cómo se llama la selección femenina argentina de hockey?", "opciones": ["Las Leonas", "Las Panteras", "Las Pumas", "Las Gladiadoras"], "correcta": 0}, {"id": "ahockeyso3", "tipo": "estimacion", "texto": "¿Cuántos metros mide de largo una cancha de hockey sobre césped?", "respuesta": 91.4, "unidad": "metros", "tiempo": 30, "dato": "Son 100 yardas: 91,4 metros."}]}, {"id": "act-iniciaciondeportiva", "nombre": "🤸 Iniciación Deportiva", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ainiciaci1", "tipo": "opcion", "texto": "¿Cuál es la idea principal de la iniciación deportiva?", "opciones": ["Probar distintos deportes jugando", "Competir para ganar torneos", "Especializarse en un solo deporte", "Hacer solo ejercicios de fuerza"], "correcta": 0}, {"id": "ainiciaci2", "tipo": "opcion", "texto": "¿Cuál de estos NO es un deporte de equipo?", "opciones": ["Vóley", "Handball", "Tenis", "Hockey"], "correcta": 2}, {"id": "ainiciaci3", "tipo": "estimacion", "texto": "¿Cuántos minutos de actividad física por día recomienda la OMS para chicos de 5 a 17 años?", "respuesta": 60, "unidad": "minutos", "tiempo": 30, "dato": "Es un promedio de al menos 60 minutos diarios de actividad moderada a intensa."}]}, {"id": "act-natacion", "nombre": "🏊 Natación", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "anatacion1", "tipo": "opcion", "texto": "¿Cuál es el estilo de natación más rápido?", "opciones": ["Pecho", "Espalda", "Crol", "Mariposa"], "correcta": 2}, {"id": "anatacion2", "tipo": "opcion", "texto": "¿Cuántos estilos se nadan en una prueba de combinado individual?", "opciones": ["2", "3", "4", "5"], "correcta": 2, "dato": "Mariposa, espalda, pecho y crol."}, {"id": "anatacion3", "tipo": "estimacion", "texto": "¿Cuántos metros mide de largo una pileta olímpica?", "respuesta": 50, "unidad": "metros", "tiempo": 30}]}, {"id": "act-padel", "nombre": "🎾 Pádel", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "apadel1", "tipo": "opcion", "texto": "¿En qué país nació el pádel?", "opciones": ["España", "Argentina", "México", "Italia"], "correcta": 2, "dato": "Nació en Acapulco en 1969."}, {"id": "apadel2", "tipo": "opcion", "texto": "¿Cuántos jugadores hay en cancha en un partido de pádel?", "opciones": ["2", "3", "4", "6"], "correcta": 2, "dato": "Siempre se juega en parejas."}, {"id": "apadel3", "tipo": "estimacion", "texto": "¿Cuántos metros mide de largo una cancha de pádel?", "respuesta": 20, "unidad": "metros", "tiempo": 30, "dato": "La cancha es de 20 × 10 metros."}]}, {"id": "act-rugby", "nombre": "🏉 Rugby", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "arugby1", "tipo": "opcion", "texto": "¿Cuántos puntos vale un try?", "opciones": ["3", "4", "5", "7"], "correcta": 2}, {"id": "arugby2", "tipo": "opcion", "texto": "¿Cómo se llama la selección argentina de rugby?", "opciones": ["Los Pumas", "Los Leones", "Los Cóndores", "Los Jaguares"], "correcta": 0}, {"id": "arugby3", "tipo": "estimacion", "texto": "¿Cuántos metros mide, como máximo, el largo del campo de juego (sin contar el in-goal)?", "respuesta": 100, "unidad": "metros", "tiempo": 30}]}, {"id": "act-tenis", "nombre": "🎾 Tenis", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "atenis1", "tipo": "opcion", "texto": "En un game de tenis, después de 15 y 30, ¿cuánto vale el siguiente punto?", "opciones": ["35", "40", "45", "50"], "correcta": 1}, {"id": "atenis2", "tipo": "opcion", "texto": "¿Sobre qué superficie se juega Roland Garros?", "opciones": ["Césped", "Cemento", "Polvo de ladrillo", "Carpeta"], "correcta": 2}, {"id": "atenis3", "tipo": "estimacion", "texto": "¿A qué altura está la red de tenis en el centro?", "respuesta": 91.4, "unidad": "centímetros", "tiempo": 30, "dato": "Son 3 pies: 91,4 centímetros."}]}, {"id": "act-voley", "nombre": "🏐 Vóley", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "avoley1", "tipo": "opcion", "texto": "¿Cuántos toques puede dar un equipo antes de pasar la pelota al otro lado?", "opciones": ["2", "3", "4", "5"], "correcta": 1}, {"id": "avoley2", "tipo": "opcion", "texto": "¿Cómo se llama el jugador de camiseta distinta que solo defiende?", "opciones": ["Armador", "Opuesto", "Líbero", "Central"], "correcta": 2}, {"id": "avoley3", "tipo": "estimacion", "texto": "¿A qué altura está la red en el vóley masculino?", "respuesta": 243, "unidad": "centímetros", "tiempo": 30, "dato": "En el femenino está a 224 cm."}]}, {"id": "act-yogainfantil", "nombre": "🧘 Yoga Infantil", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ayogainfa1", "tipo": "opcion", "texto": "¿Cómo se llama la postura en la que el cuerpo forma una V invertida?", "opciones": ["Perro boca abajo", "Cobra", "Árbol", "Montaña"], "correcta": 0}, {"id": "ayogainfa2", "tipo": "opcion", "texto": "¿Qué animal da nombre a la postura en la que se arquea la espalda hacia arriba?", "opciones": ["Perro", "Gato", "León", "Mariposa"], "correcta": 1}, {"id": "ayogainfa3", "tipo": "estimacion", "texto": "¿Qué día de junio se celebra el Día Internacional del Yoga?", "respuesta": 21, "unidad": "de junio", "tiempo": 30}]}, {"id": "act-yogabenefico", "nombre": "🧘‍♀️ Yoga Benéfico", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ayogabene1", "tipo": "opcion", "texto": "¿De qué país es originario el yoga?", "opciones": ["China", "Japón", "India", "Tailandia"], "correcta": 2}, {"id": "ayogabene2", "tipo": "opcion", "texto": "¿Cómo se llama en yoga el trabajo de control de la respiración?", "opciones": ["Pranayama", "Namaste", "Mantra", "Mudra"], "correcta": 0}, {"id": "ayogabene3", "tipo": "estimacion", "texto": "¿Cuántas posturas tiene el Saludo al Sol clásico?", "respuesta": 12, "unidad": "posturas", "tiempo": 30}]}, {"id": "act-ajedrez", "nombre": "♟️ Ajedrez", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "aajedrez1", "tipo": "opcion", "texto": "¿Qué pieza puede saltar por encima de las demás?", "opciones": ["El alfil", "La torre", "El caballo", "La dama"], "correcta": 2}, {"id": "aajedrez2", "tipo": "opcion", "texto": "¿Cómo se llama la jugada en la que el rey y la torre se mueven a la vez?", "opciones": ["Jaque", "Enroque", "Gambito", "Coronación"], "correcta": 1}, {"id": "aajedrez3", "tipo": "estimacion", "texto": "¿Cuántas casillas tiene un tablero de ajedrez?", "respuesta": 64, "unidad": "casillas", "tiempo": 30}]}, {"id": "act-taekwondo", "nombre": "🥋 Taekwondo", "tipo": "preguntas", "tiempo": 20, "doble": false, "actividad": true, "items": [{"id": "ataekwond1", "tipo": "opcion", "texto": "¿De qué país es originario el taekwondo?", "opciones": ["Japón", "China", "Corea", "Tailandia"], "correcta": 2}, {"id": "ataekwond2", "tipo": "opcion", "texto": "¿Qué color de cinturón indica el mayor grado?", "opciones": ["Rojo", "Azul", "Marrón", "Negro"], "correcta": 3}, {"id": "ataekwond3", "tipo": "estimacion", "texto": "¿En qué año el taekwondo fue deporte olímpico oficial por primera vez?", "respuesta": 2000, "unidad": "", "tiempo": 30, "dato": "Fue en los Juegos de Sídney 2000."}]}, {"id": "visual", "nombre": "👁️ Adiviná quién o qué es", "tipo": "preguntas", "tiempo": 25, "doble": false, "tipoNuevo": "imagen", "efectoNuevo": "pixel", "textoNuevo": "¿Quién o qué es?", "items": []}];
+  CONTENIDO_DEFAULT.rondas = RONDAS_ACTIVIDADES.concat(CONTENIDO_DEFAULT.rondas);
+  CONTENIDO_DEFAULT.version = 4;
   var contenido = lsGet('contenido') || clone(CONTENIDO_DEFAULT);
   var G = lsGet('estado') || estadoInicial();
   // El escudo del GEI pasó a ser el predeterminado: se aplica una vez en las consolas que ya tenían otro guardado
   if (!lsGet('escudo-gei')) { G.club = 'gei'; lsSet('escudo-gei', 1); }
   // Suma las rondas nuevas (emoji, temas, banderas, lugar, sombras, marcas) a un contenido guardado antes
   function migrarContenido(c) {
-    if ((c.version || 1) >= 3) return c;
     var ids = {}; c.rondas.forEach(function (r) { ids[r.id] = 1; });
-    CONTENIDO_DEFAULT.rondas.forEach(function (r) { if (!ids[r.id] && /^r(7|8|9|10|11|12)$/.test(r.id)) c.rondas.push(clone(r)); });
-    c.version = 3;
+    if ((c.version || 1) < 3) CONTENIDO_DEFAULT.rondas.forEach(function (r) { if (!ids[r.id] && /^r(7|8|9|10|11|12)$/.test(r.id)) c.rondas.push(clone(r)); });
+    // v4: 3 preguntas por actividad del club y el juego de imágenes distorsionadas, al principio
+    if ((c.version || 1) < 4) c.rondas = RONDAS_ACTIVIDADES.filter(function (r) { return !ids[r.id]; }).map(clone).concat(c.rondas);
+    c.version = 4;
     return c;
   }
   contenido = migrarContenido(contenido); lsSet('contenido', contenido);
@@ -1011,7 +1012,7 @@
       v.pregunta = {
         texto: it.texto, tipo: it.tipo, opciones: it.opciones || null, unidad: it.unidad || '',
         tiempo: tiempoDe(it, r), inicio: G.inicio, pool: poolDe(it, r),
-        img: it.img || '', sombra: !!it.sombra, tema: it.tema || '', desde: Number(it.desde) || 0
+        img: it.img || '', sombra: !!it.sombra, efecto: efectoDe(it), tema: it.tema || '', desde: Number(it.desde) || 0
       };
       v.respondieron = Object.keys(G.resp);
       v.totalJug = totalJugadores();
@@ -1848,14 +1849,11 @@
     $('tabInicio').innerHTML =
       '<header class="masthead"><img class="club-logo" src="' + sportOf(G.club).src + '" alt=""><p class="eyebrow">Club GEI</p><h1>La gran noche de la <span>familia GEI</span></h1><p class="sub">Elegí la ronda que sigue. Mientras tanto, el proyector muestra la tabla de posiciones.</p></header>' +
       '<div class="row-actions" style="justify-content:center;margin:0 0 20px"><button type="button" class="btn btn-gold" id="btnProyector" style="font-size:16px;padding:14px 22px">📺 Abrir la pantalla del proyector</button></div>' +
-      '<p class="hint" style="text-align:center;margin:-10px 0 22px">Se abre en una ventana aparte: arrastrala al proyector y tocá "Pantalla completa". Mientras estás en Inicio, va rotando entre la tabla de posiciones (con el QR para sumarse), el buffet y los precios.</p>' +
+      '<p class="hint" style="text-align:center;margin:-10px 0 22px">Se abre en una ventana aparte: arrastrala al proyector y tocá "Pantalla completa". Mientras estás en Inicio, va rotando entre la tabla por equipos y la tabla individual (con el QR para sumarse).</p>' +
       '<div class="role-options">' + cards + '</div>' +
       '<div class="row-actions" style="justify-content:center;margin-top:16px"><button type="button" class="btn btn-amber" id="btnCartelera">🏠 Mostrar la tabla general</button><button type="button" class="btn btn-red" id="btnPodio">🏆 Podio final</button></div>' +
       '<div class="cartelera-panel">' +
-        '<div class="cartelera-section"><h4>📺 Cartelera del proyector</h4><div class="inline-row"><label for="inSeg">Segundos por diapositiva:</label><input type="number" id="inSeg" min="5" max="120" value="' + G.segundos + '"></div><p class="hint">En Inicio, el proyector va rotando entre la tabla de posiciones, el buffet y los precios de la noche. Lo que no tenga precio cargado no se muestra.</p></div>' +
-        '<div class="cartelera-section"><h4>🍽️ Comida</h4><div class="cartelera-items" id="cfgComida"></div></div>' +
-        '<div class="cartelera-section"><h4>🥤 Bebida</h4><div class="cartelera-items" id="cfgBebida"></div></div>' +
-        '<div class="cartelera-section"><h4>🎟️ Precios de la noche</h4><div class="cartelera-items" id="cfgPrecios"></div></div>' +
+        '<div class="cartelera-section"><h4>📺 Cartelera del proyector</h4><div class="inline-row"><label for="inSeg">Segundos por diapositiva:</label><input type="number" id="inSeg" min="5" max="120" value="' + G.segundos + '"></div><p class="hint">En Inicio, el proyector va rotando entre la tabla por equipos y la tabla individual.</p></div>' +
         '<div class="cartelera-section"><h4>🎵 Música de fondo</h4><div class="inline-row"><button type="button" class="btn-mini" id="btnCarpeta">📁 Elegir carpeta con MP3</button><input type="file" id="inCarpeta" webkitdirectory directory multiple accept="audio/*" hidden><button type="button" class="btn-mini" id="btnSigTema"' + (temas.length ? '' : ' hidden') + '>⏭️ Siguiente</button><button type="button" class="btn-mini danger" id="btnPararMusica"' + (temas.length ? '' : ' hidden') + '>⏹️ Quitar música</button></div>' +
         '<p class="hint" id="musicaEstado">' + (temas.length ? temas.length + ' temas cargados' : 'Sin carpeta elegida todavía.') + '</p><p class="hint">Suena en orden aleatorio mientras la pantalla muestra la tabla general, y baja con un fundido cuando lanzás una pregunta o un desafío. El navegador no guarda la carpeta: hay que elegirla cada vez que abrís la consola.</p></div>' +
       '</div>';
@@ -1864,9 +1862,6 @@
     $('btnProyector').onclick = abrirProyector;
     $('btnPodio').onclick = function () { irA('fin'); toast('🏆 Podio en pantalla'); };
     $('inSeg').onchange = function () { var n = parseInt(this.value, 10); G.segundos = (n >= 5 && n <= 120) ? n : 15; publicar(); };
-    filasCartelera($('cfgComida'), BUFFET.filter(function (x) { return x.cat === 'comida'; }), 'buffet');
-    filasCartelera($('cfgBebida'), BUFFET.filter(function (x) { return x.cat === 'bebida'; }), 'buffet');
-    filasCartelera($('cfgPrecios'), PRECIOS_NOCHE, 'precios');
     $('btnCarpeta').onclick = function () { $('inCarpeta').click(); };
     $('inCarpeta').onchange = function () {
       temas.forEach(function (t) { URL.revokeObjectURL(t.url); });
@@ -1895,14 +1890,14 @@
   }
 
   // ---- Juego en vivo ----
-  var TIPOS_PREGUNTA = { opcion: 'Opción múltiple', estimacion: 'Más cerca gana (número)', emoji: 'Adiviná el emoji', imagen: 'Con imagen (lugar, bandera, logo, sombra)', tema: 'Descubrí el tema (música)' };
+  var TIPOS_PREGUNTA = { opcion: 'Opción múltiple', estimacion: 'Más cerca gana (número)', emoji: 'Adiviná el emoji', imagen: 'Con imagen (lugar, bandera, logo, sombra, distorsionada)', tema: 'Descubrí el tema (música)' };
   function tituloTema(k) { for (var i = 0; i < TEMAS.length; i++) if (TEMAS[i].key === k) return TEMAS[i].titulo; return k; }
   function resumenItem(x, r) {
     if (r.tipo === 'desafios') return fmt(x.puntos || 300) + ' pts';
     var extra = (x.tiempo ? ' · ' + x.tiempo + ' s' : '') + (x.puntos ? ' · ' + fmt(x.puntos) + ' pts' : '');
     if (x.tipo === 'estimacion') return 'Más cerca gana · ' + fmt(x.respuesta) + ' ' + esc(x.unidad || '') + extra;
     if (x.tipo === 'imagen' && !x.img) return '⚠️ Falta cargar la imagen';
-    var pre = { emoji: '😀 Emoji · ', imagen: x.sombra ? '👤 Sombra · ' : '🖼️ Imagen · ', tema: '🎵 ' + esc(tituloTema(x.tema)) + ' · ' }[x.tipo] || '';
+    var pre = { emoji: '😀 Emoji · ', imagen: efectoDe(x) ? EFECTOS[efectoDe(x)] + ' · ' : '🖼️ Imagen · ', tema: '🎵 ' + esc(tituloTema(x.tema)) + ' · ' }[x.tipo] || '';
     return pre + 'Correcta: ' + LETRAS[x.correcta] + ' · ' + esc((x.opciones || [])[x.correcta] || '') + extra;
   }
   function miniatura(x) {
@@ -1922,7 +1917,7 @@
     if (tabActiva === 'tesoro') renderTesoroConteo();
     if (tabActiva !== 'vivo') return;
     var r = rondaAct(), it = itemAct();
-    var nombresFase = { inicio: 'Cartelera: tablas, buffet y precios', pregunta: 'Pregunta en juego', revelado: 'Respuesta revelada', ranking: 'Mostrando el ranking', desafio: 'Desafío de fotos', fin: 'Podio final', equipos: 'Mostrando los equipos', sorteo: 'Sorteo' };
+    var nombresFase = { inicio: 'Cartelera: tablas de posiciones', pregunta: 'Pregunta en juego', revelado: 'Respuesta revelada', ranking: 'Mostrando el ranking', desafio: 'Desafío de fotos', fin: 'Podio final', equipos: 'Mostrando los equipos', sorteo: 'Sorteo' };
     var total = totalJugadores(), nResp = Object.keys(G.resp).length;
     var ventana;
     var correctaTxt = it && it.opciones ? LETRAS[it.correcta] + ' · ' + esc(it.opciones[it.correcta]) : '';
@@ -2029,7 +2024,7 @@
         (confirmando === x.id ? '<span class="confirm-inline">¿Borrar? <button type="button" class="btn-mini danger" data-delok="' + x.id + '">Sí</button><button type="button" class="btn-mini" data-delno="1">No</button></span>' : '<button type="button" class="btn-mini danger" data-del="' + x.id + '" aria-label="Borrar">🗑️</button>') + '</div>';
     }).join('');
     var nuevo = editando === 'nuevo' ? formItem(r, null) : '';
-    var ayuda = r.tipoNuevo === 'imagen' ? '<p class="notice" style="margin:0 0 14px">' + (r.sombraNuevo ? '👤 Subí la foto de un objeto: la app lo convierte en silueta negra y lo muestra de verdad al revelar. Funciona mejor con fotos sobre fondo liso (blanco o de un solo color) o con imágenes PNG sin fondo.' : '🖼️ Tocá “Agregar pregunta”, subí la imagen y escribí las opciones.') + '</p>' : '';
+    var ayuda = r.tipoNuevo === 'imagen' ? '<p class="notice" style="margin:0 0 14px">' + (r.efectoNuevo ? '👁️ Tocá “Agregar pregunta”, subí la foto, elegí el efecto (pixelada, zoom extremo, rompecabezas o desenfocada) y escribí las 4 opciones. La imagen arranca irreconocible y se va aclarando mientras corre el tiempo: el que adivina antes, suma más.' : r.sombraNuevo ? '👤 Subí la foto de un objeto: la app lo convierte en silueta negra y lo muestra de verdad al revelar. Funciona mejor con fotos sobre fondo liso (blanco o de un solo color) o con imágenes PNG sin fondo.' : '🖼️ Tocá “Agregar pregunta”, subí la imagen y escribí las opciones.') + '</p>' : '';
     $('tabPreguntas').innerHTML =
       '<section class="card"><div class="card-head"><h2>Preguntas y desafíos</h2><p>Los cambios se guardan solos y se usan en la próxima pregunta que lances.</p></div>' +
       '<div class="round-tabs">' + tabsR + '</div>' +
@@ -2078,20 +2073,24 @@
       var pintarPrevia = function () {
         var p = $('fPrevia'); if (!p) return;
         var ruta = imgEditor ? imgEditor.ruta : '';
-        var sombra = $('fSombra') && $('fSombra').checked;
+        var efx = $('fEfecto') ? $('fEfecto').value : '', sombra = efx === 'sombra';
         p.innerHTML = ruta ? '<img src="' + esc(ruta) + '" alt="Imagen elegida" style="max-height:140px;max-width:100%;object-fit:contain;background:#fff;border-radius:10px;padding:6px">' + (sombra ? '<span style="display:inline-flex;background:#fff;border-radius:10px;padding:6px"><img src="' + esc(ruta) + '" alt="Así se ve la sombra" style="max-height:128px;max-width:100%;object-fit:contain;filter:brightness(0)"></span>' : '') : '<p class="hint" style="margin:0">Todavía no elegiste imagen.</p>';
+        if (ruta && EFECTOS_CANVAS[efx]) {
+          p.insertAdjacentHTML('beforeend', '<span style="display:inline-flex;background:#fff;border-radius:10px;padding:6px"><canvas id="fEfxPrev" style="max-height:128px;max-width:220px"></canvas></span><span class="hint" style="align-self:center">Así arranca: se va aclarando mientras corre el tiempo.</span>');
+          correrEfecto($('fEfxPrev'), ruta, efx, ahora() + 3000, 1e9, 'prev');
+        }
       };
       if ($('fImg')) {
         $('fImg').onchange = function () {
           var file = this.files[0]; if (!file) return;
-          var sombra = $('fSombra').checked;
+          var sombra = $('fEfecto').value === 'sombra';
           $('fPrevia').innerHTML = '<p class="hint" style="margin:0">Preparando la imagen…</p>';
           procesarImagen(file, sombra).then(subirImagen).then(function (ruta) {
             if (!ruta) { toast('No se pudo subir la imagen. Revisá la conexión y probá de nuevo.'); pintarPrevia(); return; }
             imgEditor = { ruta: ruta }; pintarPrevia();
           }).catch(function () { toast('No se pudo abrir esa imagen. Probá con otra.'); pintarPrevia(); });
         };
-        $('fSombra').onchange = function () { if (this.checked && imgEditor && imgEditor.ruta.indexOf('/imagenes/') === 0 && /\.jpg$/.test(imgEditor.ruta)) toast('Para la sombra, volvé a elegir la imagen así se le quita el fondo.'); pintarPrevia(); };
+        $('fEfecto').onchange = function () { if (this.value === 'sombra' && imgEditor && imgEditor.ruta.indexOf('/imagenes/') === 0 && /\.jpg$/.test(imgEditor.ruta)) toast('Para la sombra, volvé a elegir la imagen así se le quita el fondo.'); pintarPrevia(); };
         pintarPrevia();
       }
       $('fCancelar').onclick = function () { editando = null; imgEditor = null; renderPreguntas(); };
@@ -2120,7 +2119,7 @@
             ops.forEach(function (o, i) { if (o) { if (i === corr) nuevaCorr = nuevas.length; nuevas.push(o); } });
             x.opciones = nuevas; x.correcta = nuevaCorr; delete x.respuesta; delete x.unidad;
           }
-          if (tipo === 'imagen') { x.img = imgEditor.ruta; x.sombra = $('fSombra').checked; } else { delete x.img; delete x.sombra; }
+          if (tipo === 'imagen') { x.img = imgEditor.ruta; x.efecto = $('fEfecto').value; x.sombra = x.efecto === 'sombra'; } else { delete x.img; delete x.sombra; delete x.efecto; }
           if (tipo === 'tema') { x.tema = $('fTema').value; x.desde = Math.max(0, parseInt($('fDesde').value, 10) || 0); } else { delete x.tema; delete x.desde; }
         }
         if (editando === 'nuevo') r.items.push(x);
@@ -2131,7 +2130,7 @@
   }
   function formItem(r, x) {
     var esNuevo = !x;
-    x = x || { tipo: r.tipoNuevo || 'opcion', texto: r.textoNuevo || '', opciones: ['', '', '', ''], correcta: 0, sombra: !!r.sombraNuevo };
+    x = x || { tipo: r.tipoNuevo || 'opcion', texto: r.textoNuevo || '', opciones: ['', '', '', ''], correcta: 0, sombra: !!r.sombraNuevo, efecto: r.efectoNuevo || (r.sombraNuevo ? 'sombra' : '') };
     if (r.tipo === 'desafios') {
       return '<form class="item" id="formItem" style="flex-direction:column;align-items:stretch;gap:10px"><div class="form-grid">' +
         '<label class="field full">Consigna del desafío<textarea id="fTexto">' + esc(x.texto) + '</textarea></label>' +
@@ -2147,7 +2146,7 @@
       '<label class="field full"><span id="fTextoLbl">Pregunta</span><textarea id="fTexto">' + esc(x.texto) + '</textarea></label>' +
       '<div class="full form-grid" id="bloqueImagen" hidden>' +
         '<label class="field">Imagen<input type="file" id="fImg" accept="image/*"></label>' +
-        '<label class="op-field" style="font-size:13px;font-weight:700;color:var(--ink-soft)"><input type="checkbox" id="fSombra"' + (x.sombra ? ' checked' : '') + ' style="width:18px;height:18px;accent-color:var(--gold)"> Mostrar como sombra (se revela al final)</label>' +
+        '<label class="field">Efecto<select id="fEfecto">' + Object.keys(EFECTOS).map(function (k) { return '<option value="' + k + '"' + (efectoDe(x) === k ? ' selected' : '') + '>' + EFECTOS[k] + '</option>'; }).join('') + '</select></label>' +
         '<div class="full" id="fPrevia" style="display:flex;gap:10px;flex-wrap:wrap"></div>' +
       '</div>' +
       '<div class="full form-grid" id="bloqueTema" hidden>' +
@@ -2578,8 +2577,6 @@
   function slidesDisponibles() {
     var ids = ['tabla'];
     if (V && (V.jugadores || []).length) ids.push('jugadores');
-    if (V && hayPrecios(V.buffet)) ids.push('buffet');
-    if (V && hayPrecios(V.precios)) ids.push('juegos');
     return ids;
   }
   function mostrarSlide(id) {
@@ -2685,7 +2682,7 @@
       var conMedia = ['emoji', 'imagen', 'tema'].indexOf(pr.tipo) >= 0;
       var media = '';
       if (pr.tipo === 'emoji') media = '<div class="p-media"><div class="p-emojis">' + esc(pr.texto) + '</div></div>';
-      if (pr.tipo === 'imagen') media = '<div class="p-media"><div class="p-imgbox"><img class="p-img' + (pr.sombra ? ' sombra' + (rev ? ' revelar' : '') : '') + '" src="' + esc(pr.img) + '" alt=""></div></div>';
+      if (pr.tipo === 'imagen') media = '<div class="p-media"><div class="p-imgbox">' + (EFECTOS_CANVAS[pr.efecto] && !rev ? htmlEfecto('p-img') : '<img class="p-img' + (pr.sombra ? ' sombra' + (rev ? ' revelar' : '') : '') + (EFECTOS_CANVAS[pr.efecto] && rev ? ' revela-efx' : '') + '" src="' + esc(pr.img) + '" alt="">') + '</div></div>';
       if (pr.tipo === 'tema') media = rev ? '<div class="p-media" id="pVideoSlot"></div>' : '<div class="p-media"><div class="p-musica"><div class="notas">🎵🎶🎵</div><p>Escuchen el tema que está sonando</p></div></div>';
       var titulo = pr.tipo === 'emoji' ? '¿Qué refrán es?' : pr.texto;
       var cuerpo;
@@ -2754,6 +2751,7 @@
       medioClave = clave;
     }
     if (enPregunta && pr.tipo === 'tema' && V.fase === 'revelado' && pr.tema) ponerVideo(pr.tema);
+    if (enPregunta && pr.tipo === 'imagen') m.querySelectorAll('canvas.efx').forEach(function (cv) { correrEfecto(cv, pr.img, pr.efecto, pr.inicio, pr.tiempo * 1000, String(pr.inicio)); });
     aplicarDeporte(V.club);
     tickCuentas();
   }
@@ -2830,17 +2828,118 @@
     tRuleta = setTimeout(final, dur + 80);
   }
 
-  // ================= JUECES: pruebas que se juegan fuera de la app =================
+  // ---- Imágenes distorsionadas: se van aclarando mientras corre el tiempo (igual en el proyector y en los celulares) ----
+  var EFECTOS = { '': 'Sin efecto', sombra: '👤 Sombra (silueta)', pixel: '🟦 Pixelada', zoom: '🔍 Zoom extremo', rompecabezas: '🧩 Rompecabezas', borroso: '🌫️ Desenfocada' };
+  var EFECTOS_CANVAS = { pixel: 1, zoom: 1, rompecabezas: 1, borroso: 1 };
+  function efectoDe(x) { return x.efecto || (x.sombra ? 'sombra' : ''); }
+  function semilla(txt) { var h = 2166136261; txt = String(txt); for (var i = 0; i < txt.length; i++) { h ^= txt.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function azarCon(seed) { return function () { seed = (seed + 0x6D2B79F5) | 0; var t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  var timersEfecto = [];
+  function pararEfectos() { timersEfecto.forEach(clearInterval); timersEfecto = []; }
+  function htmlEfecto(clase) { return '<canvas class="' + clase + ' efx" aria-label="Imagen distorsionada"></canvas>'; }
+  // Dibuja la imagen con el efecto; el nivel va de 0 (irreconocible) a 0,85 (casi clara) a lo largo del tiempo
+  function correrEfecto(cv, src, efecto, inicio, durMs, clave) {
+    if (!cv) return;
+    var img = new Image();
+    img.onload = function () {
+      var max = 900, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      var W = Math.max(40, Math.round(img.naturalWidth * k)), H = Math.max(40, Math.round(img.naturalHeight * k));
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d'), tmp = document.createElement('canvas'), tctx = tmp.getContext('2d');
+      var rnd = azarCon(semilla(clave + src));
+      var fx = 0.25 + rnd() * 0.5, fy = 0.25 + rnd() * 0.5;      // punto donde arranca el zoom
+      var N = 4, orden = [], perm = [];                          // rompecabezas de 4x4
+      for (var i = 0; i < N * N; i++) { orden.push(i); perm.push(i); }
+      for (i = perm.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), t = perm[i]; perm[i] = perm[j]; perm[j] = t; }
+      for (i = orden.length - 1; i > 0; i--) { j = Math.floor(rnd() * (i + 1)); t = orden[i]; orden[i] = orden[j]; orden[j] = t; }
+      var ultimo = -1;
+      var dibujar = function () {
+        if (!cv.isConnected) { clearInterval(id); return; }
+        var p = Math.max(0, Math.min(1, (ahora() - inicio) / durMs)), nivel = p * 0.85;
+        var paso = Math.round(nivel * 60); if (paso === ultimo) return; ultimo = paso;
+        ctx.clearRect(0, 0, W, H);
+        if (efecto === 'pixel' || efecto === 'borroso') {
+          var div = efecto === 'pixel' ? 4 + Math.pow(1 - nivel, 2) * 70 : 3 + Math.pow(1 - nivel, 2) * 45;
+          var w = Math.max(2, Math.round(W / div)), h = Math.max(2, Math.round(H / div));
+          tmp.width = w; tmp.height = h; tctx.imageSmoothingEnabled = true; tctx.drawImage(img, 0, 0, w, h);
+          ctx.imageSmoothingEnabled = efecto === 'borroso';
+          ctx.drawImage(tmp, 0, 0, w, h, 0, 0, W, H);
+        } else if (efecto === 'zoom') {
+          var z = 1 + Math.pow(1 - nivel, 2) * 11;                  // de 12x a casi 1x
+          var sw = img.naturalWidth / z, sh = img.naturalHeight / z;
+          var sx = Math.max(0, Math.min(img.naturalWidth - sw, img.naturalWidth * fx - sw / 2)), sy = Math.max(0, Math.min(img.naturalHeight - sh, img.naturalHeight * fy - sh / 2));
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+        } else if (efecto === 'rompecabezas') {
+          var bien = Math.floor(nivel * N * N);                      // piezas que ya volvieron a su lugar
+          var lugar = perm.slice();
+          for (var q = 0; q < bien; q++) { var pieza = orden[q], pos = lugar.indexOf(pieza); var otra = lugar[pieza]; lugar[pieza] = pieza; lugar[pos] = otra; }
+          var tw = img.naturalWidth / N, th = img.naturalHeight / N, dw = W / N, dh = H / N;
+          for (var c = 0; c < N * N; c++) {
+            var pz = lugar[c];
+            ctx.drawImage(img, (pz % N) * tw, Math.floor(pz / N) * th, tw, th, (c % N) * dw, Math.floor(c / N) * dh, dw, dh);
+            ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(2, W / 200); ctx.strokeRect((c % N) * dw, Math.floor(c / N) * dh, dw, dh);
+          }
+        }
+      };
+      var id = setInterval(dibujar, 120); timersEfecto.push(id); dibujar();
+    };
+    img.src = src;
+  }
+
+  // ================= JUECES: pruebas al aire libre, fuera de la app =================
+  // Cada prueba se puntúa de una de tres formas:
+  //  - resultado: el jurado carga lo que hizo cada equipo (encestes, segundos…) y el sistema arma 1º, 2º y 3º
+  //  - puestos:   el jurado toca directamente el puesto de cada equipo
+  //  - puntaje:   cada jurado pone una nota del 1 al 10 a cada equipo; se promedia entre jurados
+  var MODOS_PRUEBA = { resultado: '📏 Resultado medido', puestos: '🥇 Por puesto', puntaje: '⭐ Nota del 1 al 10' };
+  // Juegos para los 3 equipos a la vez, de 4 a 6 jugadores por equipo, sin pileta
+  var PRUEBAS_DEFAULT = [
+    { id: 'pr1', nombre: '⚽ Fútbol a tres arcos', modo: 'resultado', unidad: 'goles', mayorGana: true, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Cancha en triángulo con 3 arcos chicos (conos) y una sola pelota. Cada equipo defiende su arco y ataca los otros dos. Dos tiempos de 5 minutos. Gana el que hace más goles.' },
+    { id: 'pr2', nombre: '🏐 Vóley de tres con pelota gigante', modo: 'resultado', unidad: 'pelotas caídas en su zona', mayorGana: false, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Cancha dividida en 3 zonas con sogas o cintas. Hay que pasar la pelota (o un globo gigante) a cualquiera de las otras zonas, con toques de vóley y hasta 3 toques por equipo. Si cae en tu zona, es un punto en contra. Gana el que menos pelotas deja caer.' },
+    { id: 'pr3', nombre: '🏀 Básquet: lluvia al balde', modo: 'resultado', unidad: 'pelotas adentro', mayorGana: true, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Un aro o un balde grande en el centro y cada equipo en una línea a la misma distancia, con pelotas de su color. Todos tiran a la vez hasta que se terminan las pelotas. Gana el color con más pelotas adentro.' },
+    { id: 'pr4', nombre: '🤾 Handball: quemado de tres', modo: 'puestos', unidad: '', mayorGana: true, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Quemado con pelotas blandas y los 3 equipos en la misma cancha. Si te pega la pelota sin que pique, salís. Si la atajás, sale el que la tiró. Gana el último equipo con jugadores en cancha; el segundo, el que quedó antes.' },
+    { id: 'pr5', nombre: '🎾 Tenis: limpiá tu campo', modo: 'resultado', unidad: 'pelotas en su campo', mayorGana: false, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Cancha dividida en 3 campos, con la misma cantidad de pelotas de tenis en cada uno. Al silbato, cada equipo tira pelotas a los campos rivales, con la mano o con raqueta. Al segundo silbato se frena todo. Gana el campo con menos pelotas.' },
+    { id: 'pr6', nombre: '🏉 Rugby: cinchada a tres puntas', modo: 'puestos', unidad: '', mayorGana: true, p1: 300, p2: 200, p3: 100, valor: 30,
+      reglas: 'Tres sogas atadas a un aro en el centro, una por equipo, y un banderín detrás de cada equipo. Como en un scrum, todos tiran a la vez: gana el que llega primero a su banderín. Al mejor de 3.' }
+  ];
   function juecesCfg() {
     contenido.jueces = contenido.jueces || {};
     var j = contenido.jueces;
     if (!j.pin) { j.pin = String(1000 + Math.floor(Math.random() * 9000)); }
-    if (!j.pruebas) j.pruebas = [
-      { id: 'pr1', nombre: 'Carrera de embolsados', p1: 300, p2: 200, p3: 100 },
-      { id: 'pr2', nombre: 'Cinchada', p1: 300, p2: 200, p3: 100 },
-      { id: 'pr3', nombre: 'Postas', p1: 300, p2: 200, p3: 100 }
-    ];
+    if (!j.pruebas || j.version !== 3) { j.pruebas = clone(PRUEBAS_DEFAULT); j.version = 3; }
+    j.pruebas.forEach(function (p) { if (!p.modo) p.modo = 'puestos'; if (p.valor == null) p.valor = 30; if (p.mayorGana == null) p.mayorGana = true; });
     return j;
+  }
+  // Puestos a partir de resultados: los empates comparten el mejor puesto
+  function puestosDeResultados(res, mayorGana) {
+    var ids = EQUIPOS_FIJOS.map(function (f) { return f.id; }).filter(function (k) { return isFinite(res[k]); });
+    var orden = ids.slice().sort(function (a, b) { return mayorGana ? res[b] - res[a] : res[a] - res[b]; });
+    var pu = {};
+    orden.forEach(function (k, i) { pu[k] = (i > 0 && res[k] === res[orden[i - 1]]) ? pu[orden[i - 1]] : i + 1; });
+    return pu;
+  }
+  function puntosPorPuesto(pr, pu) { return pu === 1 ? pr.p1 : pu === 2 ? pr.p2 : pu === 3 ? pr.p3 : 0; }
+  // Recalcula los puntos de una prueba con todas sus cargas vigentes y aplica la diferencia a los equipos
+  function recalcularPrueba(pr) {
+    G.juezAplicado = G.juezAplicado || {};
+    var cargas = (G.juez || []).filter(function (x) { return x.prueba === pr.id && !x.anulada; });
+    var nuevo = {};
+    EQUIPOS_FIJOS.forEach(function (f) { nuevo[f.id] = 0; });
+    if (pr.modo === 'puntaje') {
+      EQUIPOS_FIJOS.forEach(function (f) {
+        var notas = cargas.map(function (c) { return c.notas && c.notas[f.id]; }).filter(function (n) { return isFinite(n) && n > 0; });
+        nuevo[f.id] = notas.length ? Math.round(notas.reduce(function (a, b) { return a + b; }, 0) / notas.length * pr.valor) : 0;
+      });
+    } else cargas.forEach(function (c) { EQUIPOS_FIJOS.forEach(function (f) { nuevo[f.id] += c.pts[f.id] || 0; }); });
+    var viejo = G.juezAplicado[pr.id] || {};
+    EQUIPOS_FIJOS.forEach(function (f) { G.equipos[f.id].puntos += nuevo[f.id] - (viejo[f.id] || 0); });
+    G.juezAplicado[pr.id] = nuevo;
+    return nuevo;
   }
   var intentosJuez = {};
   function cargaJuez(a) {
@@ -2856,82 +2955,115 @@
     var pr = cfg.pruebas.filter(function (x) { return x.id === a.prueba; })[0];
     if (!pr) return { ok: false, msg: 'Esa prueba ya no existe. Recargá la página.' };
     G.juez = G.juez || [];
-    if (!a.otraVez && G.juez.some(function (x) { return x.prueba === pr.id && !x.anulada; })) return { ok: false, yaCargada: true, msg: 'Esta prueba ya tiene resultado cargado.' };
-    var pts = {}, puestos = {};
-    EQUIPOS_FIJOS.forEach(function (f) {
-      var v;
-      if (a.modo === 'puestos') {
-        var pu = Number(a.puestos && a.puestos[f.id]);
-        puestos[f.id] = pu || 0;
-        v = pu === 1 ? pr.p1 : pu === 2 ? pr.p2 : pu === 3 ? pr.p3 : 0;
-      } else v = Math.round(Number(a.puntos && a.puntos[f.id]) || 0);
-      if (!isFinite(v) || Math.abs(v) > 100000) v = 0;
-      pts[f.id] = v;
-    });
-    if (!EQUIPOS_FIJOS.some(function (f) { return pts[f.id]; })) return { ok: false, msg: 'No cargaste ningún punto.' };
-    EQUIPOS_FIJOS.forEach(function (f) { G.equipos[f.id].puntos += pts[f.id]; });
-    var reg = { id: uid('jz'), t: Date.now(), prueba: pr.id, nombre: pr.nombre, juez: limpio(a.juez, 30) || 'Juez', pts: pts, puestos: puestos };
+    var juez = limpio(a.juez, 30) || 'Juez';
+    var reg = { id: uid('jz'), t: Date.now(), prueba: pr.id, nombre: pr.nombre, juez: juez, modo: pr.modo, pts: {}, puestos: {} };
+    if (pr.modo === 'puntaje') {
+      reg.notas = {};
+      EQUIPOS_FIJOS.forEach(function (f) { var n = Number(a.notas && a.notas[f.id]); reg.notas[f.id] = n >= 1 && n <= 10 ? n : 0; });
+      if (!EQUIPOS_FIJOS.some(function (f) { return reg.notas[f.id]; })) return { ok: false, msg: 'Poné la nota de cada equipo.' };
+      // la nota nueva de un jurado reemplaza su nota anterior en esta prueba
+      G.juez.forEach(function (x) { if (x.prueba === pr.id && !x.anulada && x.juez.toLowerCase() === juez.toLowerCase()) x.anulada = true; });
+    } else {
+      if (!a.otraVez && G.juez.some(function (x) { return x.prueba === pr.id && !x.anulada; })) return { ok: false, yaCargada: true, msg: 'Esta prueba ya tiene resultado cargado.' };
+      if (pr.modo === 'resultado') {
+        reg.res = {};
+        EQUIPOS_FIJOS.forEach(function (f) { var v = a.res && a.res[f.id]; v = (v === '' || v == null) ? NaN : Number(v); if (isFinite(v)) reg.res[f.id] = v; });
+        if (Object.keys(reg.res).length < 2) return { ok: false, msg: 'Cargá el resultado de al menos 2 equipos.' };
+        reg.puestos = puestosDeResultados(reg.res, pr.mayorGana);
+      } else {
+        EQUIPOS_FIJOS.forEach(function (f) { var pu = Number(a.puestos && a.puestos[f.id]); if (pu >= 1 && pu <= 3) reg.puestos[f.id] = pu; });
+        if (!Object.keys(reg.puestos).length) return { ok: false, msg: 'Tocá el puesto de cada equipo.' };
+      }
+      EQUIPOS_FIJOS.forEach(function (f) { reg.pts[f.id] = puntosPorPuesto(pr, reg.puestos[f.id]); });
+    }
     G.juez.push(reg);
-    G.anuncio = { t: Date.now(), nombre: pr.nombre, pts: pts, puestos: puestos };
+    var total = recalcularPrueba(pr);
+    if (pr.modo === 'puntaje') reg.pts = total;
+    G.anuncio = { t: Date.now(), nombre: pr.nombre, pts: pr.modo === 'puntaje' ? total : reg.pts, puestos: reg.puestos, res: reg.res || null, unidad: pr.unidad || '', notas: pr.modo === 'puntaje' };
     publicar();
     if (tabActiva === 'jueces') renderJueces();
-    return { ok: true };
+    return { ok: true, pts: reg.pts, puestos: reg.puestos };
   }
   function anularCarga(id) {
     var r = (G.juez || []).filter(function (x) { return x.id === id; })[0]; if (!r || r.anulada) return;
-    EQUIPOS_FIJOS.forEach(function (f) { G.equipos[f.id].puntos -= r.pts[f.id] || 0; });
-    r.anulada = true; publicar(); renderJueces();
+    r.anulada = true;
+    var pr = juecesCfg().pruebas.filter(function (p) { return p.id === r.prueba; })[0];
+    if (pr) recalcularPrueba(pr);
+    else EQUIPOS_FIJOS.forEach(function (f) { G.equipos[f.id].puntos -= r.pts[f.id] || 0; });
+    publicar(); renderJueces();
   }
   function compartirPruebas() {
     var cfg = juecesCfg();
     var cargadas = {}; (G.juez || []).forEach(function (x) { if (!x.anulada) cargadas[x.prueba] = 1; });
-    socket.emit('publico', { clave: 'pruebas', datos: cfg.pruebas.map(function (x) { return { id: x.id, nombre: x.nombre, p1: x.p1, p2: x.p2, p3: x.p3, hecha: !!cargadas[x.id] }; }) });
+    socket.emit('publico', { clave: 'pruebas', datos: cfg.pruebas.map(function (x) { return { id: x.id, nombre: x.nombre, modo: x.modo, unidad: x.unidad || '', mayorGana: !!x.mayorGana, reglas: x.reglas || '', p1: x.p1, p2: x.p2, p3: x.p3, valor: x.valor, hecha: !!cargadas[x.id] }; }) });
+  }
+  function describirCarga(r) {
+    return EQUIPOS_FIJOS.map(function (f) {
+      var det = r.res && isFinite(r.res[f.id]) ? fmt(r.res[f.id]) + ' → ' : (r.notas ? 'nota ' + (r.notas[f.id] || '—') + ' · ' : '');
+      return '<span class="jz-chip"><i class="dot-eq" style="background:' + f.color + '"></i>' + det + (r.puestos && r.puestos[f.id] ? r.puestos[f.id] + 'º · ' : '') + (r.notas ? '' : fmt(r.pts[f.id] || 0)) + '</span>';
+    }).join('');
   }
   function renderJueces() {
     if (tabActiva !== 'jueces') return;
     var cfg = juecesCfg(), log = (G.juez || []).slice().reverse();
     var link = location.origin + '/jueces';
+    var aplicado = G.juezAplicado || {};
     $('tabJueces').innerHTML =
-      '<section class="card"><div class="card-head"><h2>Jueces</h2><p>Para las pruebas que se juegan fuera de la app (embolsados, cinchada, postas…). Cada juez entra desde su celular, elige la prueba y carga el puesto de cada equipo. Los puntos se suman solos a la tabla.</p></div>' +
-      '<div class="jz-acceso"><div id="jzQr" class="jz-qr"></div><div style="flex:1;min-width:220px"><p class="hint" style="margin:0 0 4px">Link para los jueces</p><p style="margin:0 0 10px;font-weight:800;word-break:break-all">' + esc(link) + '</p>' +
+      '<section class="card"><div class="card-head"><h2>Jurados</h2><p>Para las pruebas al aire libre. Cada jurado entra desde su celular, elige la prueba y carga lo que hizo cada equipo. Los puntos se suman solos a la tabla y el resultado aparece en el proyector.</p></div>' +
+      '<div class="jz-acceso"><div id="jzQr" class="jz-qr"></div><div style="flex:1;min-width:220px"><p class="hint" style="margin:0 0 4px">Link para los jurados</p><p style="margin:0 0 10px;font-weight:800;word-break:break-all">' + esc(link) + '</p>' +
       '<div class="row-actions" style="margin:0 0 12px"><button type="button" class="btn-mini" id="jzCopiar">📋 Copiar link</button></div>' +
-      '<label class="field" style="max-width:240px">PIN de los jueces<input type="text" id="jzPin" maxlength="8" inputmode="numeric" value="' + esc(cfg.pin) + '"></label><p class="hint">Es distinto del PIN de la consola. Pasáselo solo a los jueces.</p></div></div>' +
-      '<p class="hint" style="margin:10px 0 0">⚠️ Esta consola tiene que estar abierta para que lleguen las cargas de los jueces.</p></section>' +
-      '<section class="card"><div class="card-head"><h2>Pruebas (' + cfg.pruebas.length + ')</h2><p>Puntos para el 1º, 2º y 3º puesto. El juez también puede cargar puntos a mano.</p></div>' +
-      '<div class="item-list">' + cfg.pruebas.map(function (x) {
-        return '<div class="item jz-prueba"><input type="text" value="' + esc(x.nombre) + '" data-prn="' + x.id + '" maxlength="40" aria-label="Nombre de la prueba">' +
-          ['p1', 'p2', 'p3'].map(function (k, i) { return '<label class="jz-pts">' + (i + 1) + 'º<input type="number" value="' + x[k] + '" data-prp="' + x.id + '" data-k="' + k + '" step="10"></label>'; }).join('') +
-          '<button type="button" class="btn-mini danger" data-prdel="' + x.id + '" aria-label="Borrar prueba">🗑️</button></div>';
+      '<label class="field" style="max-width:240px">PIN de los jurados<input type="text" id="jzPin" maxlength="8" inputmode="numeric" value="' + esc(cfg.pin) + '"></label><p class="hint">Es distinto del PIN de la consola. Pasáselo solo a los jurados.</p></div></div>' +
+      '<p class="hint" style="margin:10px 0 0">⚠️ Esta consola tiene que estar abierta para que lleguen las cargas.</p></section>' +
+      '<section class="card"><div class="card-head"><h2>Pruebas (' + cfg.pruebas.length + ')</h2><p>"Resultado medido": el jurado carga encestes, segundos, etc. y el sistema arma los puestos. "Nota del 1 al 10": se promedian las notas de todos los jurados y se multiplica por los puntos por nota.</p></div>' +
+      '<div class="jz-pruebas">' + cfg.pruebas.map(function (x) {
+        var ap = aplicado[x.id];
+        return '<div class="jz-prueba-card"><div class="jz-fila"><input type="text" value="' + esc(x.nombre) + '" data-prn="' + x.id + '" maxlength="50" aria-label="Nombre de la prueba" class="jz-nombre">' +
+          '<select data-prm="' + x.id + '" aria-label="Forma de puntuar">' + Object.keys(MODOS_PRUEBA).map(function (k) { return '<option value="' + k + '"' + (x.modo === k ? ' selected' : '') + '>' + MODOS_PRUEBA[k] + '</option>'; }).join('') + '</select>' +
+          '<button type="button" class="btn-mini danger" data-prdel="' + x.id + '" aria-label="Borrar prueba">🗑️</button></div>' +
+          '<div class="jz-fila">' +
+            (x.modo === 'resultado' ? '<label class="jz-pts">Se mide en<input type="text" value="' + esc(x.unidad || '') + '" data-pru="' + x.id + '" maxlength="20" style="width:130px"></label><label class="jz-pts">Gana<select data-prg="' + x.id + '"><option value="1"' + (x.mayorGana ? ' selected' : '') + '>el mayor</option><option value="0"' + (x.mayorGana ? '' : ' selected') + '>el menor</option></select></label>' : '') +
+            (x.modo === 'puntaje' ? '<label class="jz-pts">Puntos por nota<input type="number" value="' + x.valor + '" data-prv="' + x.id + '" step="5"></label><span class="hint">Nota 10 = ' + fmt(10 * x.valor) + ' pts</span>' :
+              ['p1', 'p2', 'p3'].map(function (k, i) { return '<label class="jz-pts">' + (i + 1) + 'º<input type="number" value="' + x[k] + '" data-prp="' + x.id + '" data-k="' + k + '" step="10"></label>'; }).join('')) +
+          '</div>' +
+          '<textarea data-prr="' + x.id + '" rows="2" maxlength="300" class="jz-reglas" placeholder="Reglas (las ve el jurado en su celular)">' + esc(x.reglas || '') + '</textarea>' +
+          (ap ? '<div class="jz-fila">' + EQUIPOS_FIJOS.map(function (f) { return '<span class="jz-chip"><i class="dot-eq" style="background:' + f.color + '"></i>' + f.nombre + ': ' + fmt(ap[f.id] || 0) + '</span>'; }).join('') + '</div>' : '') +
+          '</div>';
       }).join('') + '</div>' +
-      '<form id="jzNueva" class="row-actions" style="margin:12px 0 0"><span class="field" style="flex:1;min-width:200px"><input type="text" id="jzNombre" maxlength="40" placeholder="Nueva prueba (ej.: Búsqueda de la pelota)"></span><button type="submit" class="btn btn-gold">＋ Agregar prueba</button></form></section>' +
-      '<section class="card"><div class="card-head"><h2>Cargas de los jueces (' + log.length + ')</h2></div>' +
+      '<form id="jzNueva" class="row-actions" style="margin:12px 0 0"><span class="field" style="flex:1;min-width:200px"><input type="text" id="jzNombre" maxlength="50" placeholder="Nueva prueba"></span><button type="submit" class="btn btn-gold">＋ Agregar prueba</button></form></section>' +
+      '<section class="card"><div class="card-head"><h2>Cargas de los jurados (' + log.length + ')</h2></div>' +
       (log.length ? '<div class="item-list">' + log.map(function (r) {
-        return '<div class="item' + (r.anulada ? ' jz-anulada' : '') + '"><span style="flex:1"><b>' + esc(r.nombre) + '</b><small style="display:block;color:var(--ink-soft)">' + esc(r.juez) + ' · ' + new Date(r.t).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) + (r.anulada ? ' · ANULADA' : '') + '</small></span>' +
-          EQUIPOS_FIJOS.map(function (f) { return '<span class="jz-chip"><i class="dot-eq" style="background:' + f.color + '"></i>' + (r.puestos && r.puestos[f.id] ? r.puestos[f.id] + 'º · ' : '') + fmt(r.pts[f.id] || 0) + '</span>'; }).join('') +
-          (r.anulada ? '' : '<button type="button" class="btn-mini danger" data-jzanular="' + r.id + '">Anular</button>') + '</div>';
+        return '<div class="item' + (r.anulada ? ' jz-anulada' : '') + '"><span style="flex:1;min-width:160px"><b>' + esc(r.nombre) + '</b><small style="display:block;color:var(--ink-soft)">' + esc(r.juez) + ' · ' + new Date(r.t).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) + (r.anulada ? ' · ANULADA' : '') + '</small></span>' +
+          describirCarga(r) + (r.anulada ? '' : '<button type="button" class="btn-mini danger" data-jzanular="' + r.id + '">Anular</button>') + '</div>';
       }).join('') + '</div>' : '<p class="muted" style="margin:0">Todavía no hay cargas.</p>') + '</section>';
     try { var q = qrcode(0, 'M'); q.addData(link); q.make(); $('jzQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); } catch (e) { }
     $('jzCopiar').onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast('Link copiado'); }, function () { toast(esc(link)); }); };
-    $('jzPin').onchange = function () { var v = this.value.trim(); if (v.length < 4) { toast('El PIN tiene que tener al menos 4 caracteres.'); this.value = cfg.pin; return; } cfg.pin = v; guardarContenido(); toast('PIN de jueces cambiado'); };
+    $('jzPin').onchange = function () { var v = this.value.trim(); if (v.length < 4) { toast('El PIN tiene que tener al menos 4 caracteres.'); this.value = cfg.pin; return; } cfg.pin = v; guardarContenido(); toast('PIN de jurados cambiado'); };
     var T = $('tabJueces');
-    T.querySelectorAll('[data-prn]').forEach(function (inp) { inp.onchange = function () { var x = cfg.pruebas.filter(function (p) { return p.id === inp.dataset.prn; })[0]; if (x && inp.value.trim()) { x.nombre = limpio(inp.value, 40); guardarContenido(); compartirPruebas(); } }; });
-    T.querySelectorAll('[data-prp]').forEach(function (inp) { inp.onchange = function () { var x = cfg.pruebas.filter(function (p) { return p.id === inp.dataset.prp; })[0]; if (x) { x[inp.dataset.k] = Math.round(Number(inp.value) || 0); guardarContenido(); compartirPruebas(); } }; });
-    T.querySelectorAll('[data-prdel]').forEach(function (b) { b.onclick = function () { cfg.pruebas = cfg.pruebas.filter(function (p) { return p.id !== b.dataset.prdel; }); guardarContenido(); compartirPruebas(); renderJueces(); }; });
+    var prueba = function (id) { return cfg.pruebas.filter(function (p) { return p.id === id; })[0]; };
+    var cambio = function (rerender) { guardarContenido(); compartirPruebas(); if (rerender) renderJueces(); };
+    T.querySelectorAll('[data-prn]').forEach(function (inp) { inp.onchange = function () { var x = prueba(inp.dataset.prn); if (x && inp.value.trim()) { x.nombre = limpio(inp.value, 50); cambio(); } }; });
+    T.querySelectorAll('[data-prm]').forEach(function (s) { s.onchange = function () { var x = prueba(s.dataset.prm); if (x) { x.modo = s.value; cambio(true); } }; });
+    T.querySelectorAll('[data-pru]').forEach(function (inp) { inp.onchange = function () { var x = prueba(inp.dataset.pru); if (x) { x.unidad = limpio(inp.value, 20); cambio(); } }; });
+    T.querySelectorAll('[data-prg]').forEach(function (s) { s.onchange = function () { var x = prueba(s.dataset.prg); if (x) { x.mayorGana = s.value === '1'; cambio(); } }; });
+    T.querySelectorAll('[data-prv]').forEach(function (inp) { inp.onchange = function () { var x = prueba(inp.dataset.prv); if (x) { x.valor = Math.max(0, Math.round(Number(inp.value) || 0)); recalcularPrueba(x); publicar(); cambio(true); } }; });
+    T.querySelectorAll('[data-prr]').forEach(function (inp) { inp.onchange = function () { var x = prueba(inp.dataset.prr); if (x) { x.reglas = limpio(inp.value, 300); cambio(); } }; });
+    T.querySelectorAll('[data-prp]').forEach(function (inp) { inp.onchange = function () { var x = prueba(inp.dataset.prp); if (x) { x[inp.dataset.k] = Math.round(Number(inp.value) || 0); cambio(); } }; });
+    T.querySelectorAll('[data-prdel]').forEach(function (b) { b.onclick = function () { cfg.pruebas = cfg.pruebas.filter(function (p) { return p.id !== b.dataset.prdel; }); cambio(true); }; });
     T.querySelectorAll('[data-jzanular]').forEach(function (b) { b.onclick = function () { anularCarga(b.dataset.jzanular); }; });
     $('jzNueva').onsubmit = function (ev) {
-      ev.preventDefault(); var n = limpio($('jzNombre').value, 40); if (n.length < 2) return;
-      cfg.pruebas.push({ id: uid('pr'), nombre: n, p1: 300, p2: 200, p3: 100 }); guardarContenido(); compartirPruebas(); renderJueces();
+      ev.preventDefault(); var n = limpio($('jzNombre').value, 50); if (n.length < 2) return;
+      cfg.pruebas.push({ id: uid('pr'), nombre: n, modo: 'resultado', unidad: 'puntos', mayorGana: true, p1: 300, p2: 200, p3: 100, valor: 30, reglas: '' }); cambio(true);
     };
   }
 
-  // ---- Página del juez (/jueces) ----
+  // ---- Página del jurado (/jueces) ----
   var juezPin = null, juezPruebas = null, juezSel = null;
   function renderJuez() {
     var m = $('juezMain');
     var nombre = lsGet('juez-nombre') || '';
     if (!juezPin) {
-      m.innerHTML = '<div class="j-card"><h2>⚖️ Jueces</h2><p class="muted" style="margin:0 0 14px;line-height:1.5">Entrá con tu nombre y el PIN de jueces que te pasó el organizador.</p>' +
-        '<form id="fJuez" style="display:flex;flex-direction:column;gap:12px"><input class="j-input" id="jzTuNombre" maxlength="30" placeholder="Tu nombre" value="' + esc(nombre) + '" aria-label="Tu nombre"><input class="j-input" id="jzTuPin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN de jueces" aria-label="PIN de jueces"><button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">Entrar</button></form></div>';
+      m.innerHTML = '<div class="j-card"><h2>⚖️ Jurados</h2><p class="muted" style="margin:0 0 14px;line-height:1.5">Entrá con tu nombre y el PIN de jurados que te pasó el organizador.</p>' +
+        '<form id="fJuez" style="display:flex;flex-direction:column;gap:12px"><input class="j-input" id="jzTuNombre" maxlength="30" placeholder="Tu nombre" value="' + esc(nombre) + '" aria-label="Tu nombre"><input class="j-input" id="jzTuPin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN de jurados" aria-label="PIN de jurados"><button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">Entrar</button></form></div>';
       $('fJuez').onsubmit = function (ev) {
         ev.preventDefault();
         var n = $('jzTuNombre').value.trim(), pin = $('jzTuPin').value.trim();
@@ -2947,55 +3079,67 @@
       return;
     }
     if (!juezSel) {
-      m.innerHTML = '<div class="j-card"><h2>Elegí la prueba</h2><div id="jzLista" class="j-inv"><p class="hint">Cargando…</p></div><p class="hint" style="margin:12px 0 0">Juez: <b>' + esc(nombre) + '</b> · <button type="button" class="btn-mini" id="jzSalir">Salir</button></p></div>';
+      m.innerHTML = '<div class="j-card"><h2>Elegí la prueba</h2><div id="jzLista" class="j-inv"><p class="hint">Cargando…</p></div><p class="hint" style="margin:12px 0 0">Jurado: <b>' + esc(nombre) + '</b> · <button type="button" class="btn-mini" id="jzSalir">Salir</button></p></div>';
       $('jzSalir').onclick = function () { juezPin = null; try { sessionStorage.removeItem('lgn-juez'); } catch (e) { } renderJuez(); };
       pedirPublico('pruebas').then(function (l) {
         juezPruebas = l || [];
         var box = $('jzLista'); if (!box) return;
-        box.innerHTML = juezPruebas.length ? juezPruebas.map(function (x, i) { return '<button type="button" class="j-inv-op" data-jzp="' + i + '"><span>' + esc(x.nombre) + '</span><small>' + (x.hecha ? '✅ ya cargada' : 'Cargar →') + '</small></button>'; }).join('') : '<p class="hint">Todavía no hay pruebas cargadas. Avisale al organizador (y que tenga la consola abierta).</p>';
+        box.innerHTML = juezPruebas.length ? juezPruebas.map(function (x, i) { return '<button type="button" class="j-inv-op" data-jzp="' + i + '"><span>' + esc(x.nombre) + '</span><small>' + (x.hecha ? '✅ cargada' : 'Cargar →') + '</small></button>'; }).join('') : '<p class="hint">Todavía no hay pruebas cargadas. Avisale al organizador (y que tenga la consola abierta).</p>';
         box.querySelectorAll('[data-jzp]').forEach(function (b) { b.onclick = function () { juezSel = juezPruebas[Number(b.dataset.jzp)]; renderJuez(); }; });
       });
       return;
     }
-    var pr = juezSel;
-    m.innerHTML = '<div class="j-card"><p class="hint" style="margin:0 0 4px">⚖️ Resultado de</p><h2>' + esc(pr.nombre) + '</h2>' + (pr.hecha ? '<p class="j-state pendiente" style="margin:8px 0">Esta prueba ya tiene un resultado cargado.</p>' : '') +
-      '<div class="jz-modo"><button type="button" class="on" data-modo="puestos">Por puesto</button><button type="button" data-modo="puntos">Puntos a mano</button></div>' +
-      '<div id="jzEquipos">' + EQUIPOS_FIJOS.map(function (f) {
-        return '<div class="jz-eq" style="--c:' + f.color + ';--t:' + tintaDe(f.color) + '"><b>' + f.nombre + '</b>' +
-          '<div class="jz-puestos" data-eq="' + f.id + '">' + [1, 2, 3].map(function (n) { return '<button type="button" data-pu="' + n + '">' + n + 'º<small>' + fmt(pr['p' + n]) + '</small></button>'; }).join('') + '</div>' +
-          '<input class="j-input jz-num" data-eqpts="' + f.id + '" type="number" inputmode="numeric" placeholder="Puntos" hidden></div>';
-      }).join('') + '</div>' +
+    var pr = juezSel, modo = pr.modo || 'puestos';
+    var cuerpoEq = function (f) {
+      if (modo === 'resultado') return '<input class="j-input jz-num" data-eqres="' + f.id + '" type="number" inputmode="decimal" step="any" placeholder="' + esc(pr.unidad || 'Resultado') + '" aria-label="Resultado de ' + f.nombre + '">';
+      if (modo === 'puntaje') return '<div class="jz-notas" data-eq="' + f.id + '">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return '<button type="button" data-nota="' + n + '">' + n + '</button>'; }).join('') + '</div>';
+      return '<div class="jz-puestos" data-eq="' + f.id + '">' + [1, 2, 3].map(function (n) { return '<button type="button" data-pu="' + n + '">' + n + 'º<small>' + fmt(pr['p' + n]) + '</small></button>'; }).join('') + '</div>';
+    };
+    var ayuda = modo === 'resultado' ? 'Cargá cuántos ' + esc(pr.unidad || 'puntos') + ' hizo cada equipo. ' + (pr.mayorGana ? 'Gana el que más hace.' : 'Gana el que menos tarda.') + ' Los puestos se arman solos.'
+      : modo === 'puntaje' ? 'Poné una nota del 1 al 10 a cada equipo. Se promedia con las notas de los otros jurados. Si te equivocás, cargá de nuevo: tu nota anterior se reemplaza.'
+      : 'Tocá el puesto de cada equipo.';
+    m.innerHTML = '<div class="j-card"><p class="hint" style="margin:0 0 4px">⚖️ Resultado de</p><h2>' + esc(pr.nombre) + '</h2>' +
+      (pr.reglas ? '<p class="jz-regla">📋 ' + esc(pr.reglas) + '</p>' : '') +
+      (pr.hecha && modo !== 'puntaje' ? '<p class="j-state pendiente" style="margin:8px 0">Esta prueba ya tiene un resultado cargado.</p>' : '') +
+      '<p class="hint" style="margin:8px 0 12px">' + ayuda + '</p>' +
+      '<div id="jzEquipos">' + EQUIPOS_FIJOS.map(function (f) { return '<div class="jz-eq" style="--c:' + f.color + ';--t:' + tintaDe(f.color) + '"><b>' + f.nombre + '</b>' + cuerpoEq(f) + '</div>'; }).join('') + '</div>' +
       '<button type="button" class="btn btn-gold" id="jzEnviar" style="width:100%;font-size:16px;margin-top:14px">Cargar resultado</button>' +
       '<p style="text-align:center;margin:12px 0 0"><button type="button" class="btn-mini" id="jzVolver">← Volver a las pruebas</button></p></div>';
-    var modo = 'puestos', puestos = {};
-    m.querySelectorAll('[data-modo]').forEach(function (b) {
-      b.onclick = function () {
-        modo = b.dataset.modo; m.querySelectorAll('[data-modo]').forEach(function (x) { x.classList.toggle('on', x === b); });
-        m.querySelectorAll('.jz-puestos').forEach(function (x) { x.hidden = modo !== 'puestos'; });
-        m.querySelectorAll('.jz-num').forEach(function (x) { x.hidden = modo !== 'puntos'; });
-      };
-    });
+    var puestos = {}, notas = {};
     m.querySelectorAll('.jz-puestos button').forEach(function (b) {
       b.onclick = function () {
         var eq = b.parentNode.dataset.eq, n = Number(b.dataset.pu);
-        // un puesto no se repite entre equipos (salvo empate: tocar dos veces lo permite)
         puestos[eq] = puestos[eq] === n ? 0 : n;
         b.parentNode.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', Number(x.dataset.pu) === puestos[eq]); });
       };
     });
+    m.querySelectorAll('.jz-notas button').forEach(function (b) {
+      b.onclick = function () {
+        var eq = b.parentNode.dataset.eq, n = Number(b.dataset.nota);
+        notas[eq] = n;
+        b.parentNode.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', Number(x.dataset.nota) === n); });
+      };
+    });
     $('jzVolver').onclick = function () { juezSel = null; renderJuez(); };
-    $('jzEnviar').onclick = function () {
-      var datos = { tipo: 'juez', pin: juezPin, juez: lsGet('juez-nombre'), prueba: pr.id, modo: modo };
-      if (modo === 'puestos') {
+    $('jzEnviar').onclick = function pedirConfirmacion() {
+      var datos = { tipo: 'juez', pin: juezPin, juez: lsGet('juez-nombre'), prueba: pr.id }, resumen;
+      if (modo === 'resultado') {
+        datos.res = {}; m.querySelectorAll('[data-eqres]').forEach(function (x) { datos.res[x.dataset.eqres] = x.value.trim() === '' ? '' : Number(x.value.replace(',', '.')); });
+        if (EQUIPOS_FIJOS.filter(function (f) { return datos.res[f.id] !== '' && isFinite(datos.res[f.id]); }).length < 2) { toast('Cargá el resultado de cada equipo.'); return; }
+        var pu = puestosDeResultados(Object.keys(datos.res).reduce(function (o, k) { if (datos.res[k] !== '') o[k] = datos.res[k]; return o; }, {}), pr.mayorGana);
+        resumen = EQUIPOS_FIJOS.map(function (f) { return f.nombre + ': ' + (datos.res[f.id] === '' ? '—' : fmt(datos.res[f.id]) + ' (' + pu[f.id] + 'º)'); }).join(' · ');
+      } else if (modo === 'puntaje') {
+        if (EQUIPOS_FIJOS.some(function (f) { return !notas[f.id]; })) { toast('Poné la nota de los 3 equipos.'); return; }
+        datos.notas = notas;
+        resumen = EQUIPOS_FIJOS.map(function (f) { return f.nombre + ': ' + notas[f.id]; }).join(' · ');
+      } else {
         if (!EQUIPOS_FIJOS.some(function (f) { return puestos[f.id]; })) { toast('Tocá el puesto de cada equipo.'); return; }
         datos.puestos = puestos;
-      } else {
-        datos.puntos = {}; m.querySelectorAll('[data-eqpts]').forEach(function (x) { datos.puntos[x.dataset.eqpts] = Number(x.value) || 0; });
+        resumen = EQUIPOS_FIJOS.map(function (f) { return f.nombre + ': ' + (puestos[f.id] ? puestos[f.id] + 'º' : '—'); }).join(' · ');
       }
-      var resumen = EQUIPOS_FIJOS.map(function (f) { return f.nombre + ': ' + (modo === 'puestos' ? (puestos[f.id] ? puestos[f.id] + 'º' : '—') : fmt(datos.puntos[f.id] || 0)); }).join(' · ');
       var b = this;
       b.outerHTML = '<div class="j-confirma" id="jzConf"><p>¿Confirmás?<br><b>' + esc(resumen) + '</b></p><div style="display:flex;gap:10px"><button type="button" class="btn btn-gold" id="jzSi" style="flex:1">Sí, cargar</button><button type="button" class="btn-mini" id="jzNo">Corregir</button></div></div>';
-      $('jzNo').onclick = function () { renderJuez(); };
+      $('jzNo').onclick = function () { $('jzConf').outerHTML = '<button type="button" class="btn btn-gold" id="jzEnviar" style="width:100%;font-size:16px;margin-top:14px">Cargar resultado</button>'; $('jzEnviar').onclick = pedirConfirmacion; };
       $('jzSi').onclick = function enviar() {
         var si = this; si.disabled = true; si.textContent = 'Enviando…';
         enviarAccion(datos).then(function (r) {
@@ -3013,16 +3157,17 @@
     };
   }
 
-  // ---- Anuncio en el proyector cuando un juez carga un resultado ----
+  // ---- Anuncio en el proyector cuando un jurado carga un resultado ----
   var tAnuncio = null, ultimoAnuncio = 0;
   function mostrarAnuncio() {
     var a = V && V.anuncio; if (!a || a.t === ultimoAnuncio || ahora() - a.t > 12000) return;
     ultimoAnuncio = a.t;
     var box = $('pAnuncio');
     var orden = EQUIPOS_FIJOS.slice().sort(function (x, y) { return (a.pts[y.id] || 0) - (a.pts[x.id] || 0); });
-    box.innerHTML = '<div class="p-anuncio-in"><p>⚖️ Resultado de</p><h2>' + esc(a.nombre) + '</h2><div class="p-anuncio-eqs">' + orden.map(function (f) {
-      return '<div style="--c:' + f.color + ';--t:' + tintaDe(f.color) + '"><b>' + (a.puestos && a.puestos[f.id] ? ['🥇', '🥈', '🥉'][a.puestos[f.id] - 1] + ' ' : '') + f.nombre + '</b><span>+' + fmt(a.pts[f.id] || 0) + '</span></div>';
-    }).join('') + '</div></div>';
+    box.innerHTML = '<div class="p-anuncio-in"><p>⚖️ ' + (a.notas ? 'Notas del jurado en' : 'Resultado de') + '</p><h2>' + esc(a.nombre) + '</h2><div class="p-anuncio-eqs">' + orden.map(function (f) {
+      var med = a.res && isFinite(a.res[f.id]) ? '<small>' + fmt(a.res[f.id]) + ' ' + esc(a.unidad) + '</small>' : '';
+      return '<div style="--c:' + f.color + ';--t:' + tintaDe(f.color) + '"><b>' + (a.puestos && a.puestos[f.id] ? ['🥇', '🥈', '🥉'][a.puestos[f.id] - 1] + ' ' : '') + f.nombre + '</b>' + med + '<span>' + (a.notas ? '' : '+') + fmt(a.pts[f.id] || 0) + '</span></div>';
+    }).join('') + '</div>' + (a.notas ? '<p style="margin-top:2vh">Puntos según el promedio de notas de los jurados</p>' : '') + '</div>';
     box.hidden = false; box.classList.remove('fuera'); void box.offsetWidth; box.classList.add('entra');
     clearTimeout(tAnuncio); tAnuncio = setTimeout(function () { box.classList.add('fuera'); setTimeout(function () { box.hidden = true; }, 600); }, 9000);
   }
@@ -3092,10 +3237,7 @@
           '<form id="fInsc" class="j-card" style="display:flex;flex-direction:column;gap:12px">' +
           '<div id="inscQuien"></div>' +
           '<label class="field">Teléfono (opcional)<input class="j-input" id="inTel" maxlength="25" inputmode="tel" autocomplete="tel"></label>' +
-          '<div><p style="margin:0 0 6px;font-weight:700">¿Venís con alguien? (opcional)</p><div id="inscPersonas" style="display:flex;flex-direction:column;gap:8px"></div>' +
-          '<button type="button" class="btn-mini" id="inscMas" style="margin-top:8px">＋ Agregar acompañante</button></div>' +
           '<label class="field">Comentario (opcional)<textarea class="j-input" id="inComent" rows="2" maxlength="200"></textarea></label>' +
-          '<p id="inscTotal" class="hint" style="margin:0;text-align:center"></p>' +
           '<button type="submit" class="btn btn-gold" style="width:100%;font-size:16px">✅ Confirmar asistencia</button></form>';
         var quien = $('inscQuien');
         var pintarQuien = function () {
@@ -3124,29 +3266,18 @@
           }
         };
         pintarQuien();
-        var box = $('inscPersonas');
-        var contar = function () { var n = 1 + Array.prototype.filter.call(box.querySelectorAll('input'), function (x) { return x.value.trim().length >= 2; }).length; $('inscTotal').textContent = 'Van a ser ' + n + (n === 1 ? ' persona' : ' personas'); };
-        var agregar = function () {
-          if (box.children.length >= 14) { toast('Máximo 15 personas por inscripción.'); return; }
-          var d = document.createElement('div'); d.style.cssText = 'display:flex;gap:8px';
-          d.innerHTML = '<input class="j-input" maxlength="40" placeholder="Nombre y apellido" aria-label="Nombre del acompañante" style="flex:1"><button type="button" class="btn-mini danger" aria-label="Quitar">✕</button>';
-          d.querySelector('button').onclick = function () { d.remove(); contar(); };
-          d.querySelector('input').oninput = contar;
-          box.appendChild(d); d.querySelector('input').focus();
-        };
-        $('inscMas').onclick = agregar; contar();
         $('fInsc').onsubmit = function (ev) {
           ev.preventDefault();
           var titular = elegido ? elegido[1] : ($('inTitular') ? $('inTitular').value.trim() : '');
           if (!elegido && !$('inTitular')) { toast('Buscá tu nombre y tocalo.'); return; }
           if (titular.length < 3) { toast('Escribí tu nombre y apellido.'); return; }
-          var personas = [titular].concat(Array.prototype.map.call(box.querySelectorAll('input'), function (x) { return x.value.trim(); }).filter(function (x) { return x.length >= 2; }));
+          var personas = [titular];
           var b = this.querySelector('[type=submit]'); b.disabled = true; b.textContent = 'Enviando…';
           socket.timeout(70000).emit('inscribir', { titular: titular, invitado: elegido ? elegido[0] : null, tel: $('inTel').value, personas: personas, comentario: $('inComent').value }, function (err, r) {
             if (err || !r || !r.ok) { toast(esc((r && r.msg) || 'No se pudo enviar. Probá de nuevo.'), 6000); b.disabled = false; b.textContent = '✅ Confirmar asistencia'; return; }
             if (hechas.indexOf(titular) < 0) hechas = hechas.concat([titular]); lsSet('mis-insc', hechas);
             if (elegido) elegido[2] = 1;
-            m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🎉</div><h2>¡Gracias, ' + esc(titular.split(' ')[0]) + '!</h2><p style="font-weight:700">' + (r.actualizada ? 'Actualizamos tu confirmación: ' : 'Asistencia confirmada: ') + r.n + (r.n === 1 ? ' persona' : ' personas') + '.</p><p class="muted" style="line-height:1.5">El día del evento, escaneá el QR del salón y buscá tu nombre para jugar.</p><button type="button" class="btn-mini" id="inscOtra">Confirmar a otra persona</button></div>';
+            m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🎉</div><h2>¡Gracias, ' + esc(titular.split(' ')[0]) + '!</h2><p style="font-weight:700">' + (r.actualizada ? 'Ya estabas confirmado: actualizamos tus datos.' : '¡Tu asistencia quedó confirmada!') + '</p><p class="muted" style="line-height:1.5">El día del evento, escaneá el QR del salón y buscá tu nombre para jugar.</p><button type="button" class="btn-mini" id="inscOtra">Confirmar a otra persona</button></div>';
             $('inscOtra').onclick = function () { elegido = null; formulario(); };
           });
         };
@@ -3200,7 +3331,7 @@
   }
   function mediaJugador(pr, rev) {
     if (pr.tipo === 'emoji') return '<div class="j-card j-emojis">' + esc(pr.texto) + '</div>';
-    if (pr.tipo === 'imagen') return '<div class="j-media"><img src="' + esc(pr.img) + '" alt=""' + (pr.sombra && !rev ? ' class="sombra"' : '') + '></div>';
+    if (pr.tipo === 'imagen') return '<div class="j-media">' + (EFECTOS_CANVAS[pr.efecto] && !rev ? htmlEfecto('') : '<img src="' + esc(pr.img) + '" alt=""' + (pr.sombra && !rev ? ' class="sombra"' : '') + '>') + '</div>';
     if (pr.tipo === 'tema') return '<div class="j-card center" style="padding:12px"><span style="font-size:34px">🎵</span><p class="muted" style="margin:4px 0 0">Escuchá el tema que suena en el salón</p></div>';
     return '';
   }
@@ -3475,6 +3606,7 @@
         '</div><p class="muted" style="margin:0">' + (fin ? '¡Gracias por jugar!' : 'Miren la pantalla para ver las tablas completas.') + '</p></div>';
     }
     else m.innerHTML = '<div class="j-card center"><div class="j-big">👀</div><h2>Miren la pantalla grande</h2></div>';
+    if (pr && pr.tipo === 'imagen' && V.fase === 'pregunta') m.querySelectorAll('canvas.efx').forEach(function (cv) { correrEfecto(cv, pr.img, pr.efecto, pr.inicio, pr.tiempo * 1000, String(pr.inicio)); });
     tickCuentas();
   }
   function mandarRespuesta(valor) {

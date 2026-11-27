@@ -278,9 +278,7 @@ io.on('connection', socket => {
       invitado = inv[0]; titular = inv[1];
     } else if (listaInv().length && !(publicos.invitados && publicos.invitados.abierto)) return cb({ ok: false, msg: 'Buscá tu nombre en la lista.' });
     if (titular.length < 3) return cb({ ok: false, msg: 'Escribí tu nombre y apellido.' });
-    let personas = (Array.isArray(d.personas) ? d.personas : []).map(x => limpiar(x, 40)).filter(x => x.length >= 2).slice(0, 15);
-    if (!personas.some(x => x.toLowerCase() === titular.toLowerCase())) personas.unshift(titular);
-    personas = personas.slice(0, 15);
+    const personas = [titular];   // cada uno confirma solo por sí mismo
     const item = { id: crypto.randomBytes(6).toString('hex'), t: ahora, titular, invitado, tel: limpiar(d.tel, 25), personas, comentario: limpiar(d.comentario, 200), ip };
     // si la persona ya había confirmado, se reemplaza su confirmación (no se duplica)
     const previa = invitado ? insc.lista.findIndex(x => x.invitado === invitado) : -1;

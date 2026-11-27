@@ -82,9 +82,19 @@ En la consola, pestaña **📝 Inscripción**, está el link (y su QR) para conf
 
 Las inscripciones se guardan en el servidor y la consola guarda una copia. En el plan gratis de Render, si el servidor se reinicia, al abrir la consola se vuelven a cargar desde esa copia. Por eso conviene abrir la consola cada tanto mientras la inscripción esté abierta.
 
-## Jueces (pruebas fuera de la app)
+## Jurados (pruebas al aire libre)
 
-Para las pruebas que se juegan en el salón o la cancha (embolsados, cinchada, postas…). En la pestaña **⚖️ Jueces** cargás las pruebas con los puntos del 1º, 2º y 3º puesto, y ves el link y el PIN de jueces. Cada juez entra desde su celular en `/jueces`, elige la prueba y toca el puesto de cada equipo. Los puntos se suman solos y el resultado aparece en el proyector. Si hubo un error, la carga se puede anular. La consola tiene que estar abierta.
+Vienen cargadas 6 pruebas para los 3 equipos a la vez (4 a 6 jugadores por equipo), cada una con sus reglas: fútbol a tres arcos, vóley de tres, lluvia al balde, quemado de tres, limpiá tu campo y cinchada a tres puntas. En la pestaña **⚖️ Jueces** se editan y se elige cómo se puntúa cada una:
+
+- **Resultado medido:** el jurado carga lo que hizo cada equipo (goles, pelotas…) y el sistema arma el 1º, 2º y 3º.
+- **Por puesto:** el jurado toca el puesto de cada equipo.
+- **Nota del 1 al 10:** cada jurado pone una nota y se promedian las de todos.
+
+Los jurados entran desde el celular en `/jueces` con su propio PIN. Los puntos se suman solos, el resultado aparece en el proyector y cualquier carga se puede anular. La consola tiene que estar abierta.
+
+## Preguntas por actividad e imágenes distorsionadas
+
+Hay una ronda por cada actividad del club con 3 preguntas: dos de opción múltiple y una de aproximación con números. La ronda **👁️ Adiviná quién o qué es** usa fotos que subís vos con un efecto (pixelada, zoom extremo, rompecabezas o desenfocada) que se va aclarando mientras corre el tiempo.
 
 ## Conectar Spotify (opcional)
 
