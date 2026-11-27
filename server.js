@@ -109,7 +109,20 @@ const server = http.createServer(app);
 const io = new Server(server, { maxHttpBufferSize: 6e6 });
 const pagina = (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'));
 
-app.get(['/', '/pantalla', '/jugar', '/jueces', '/inscripcion'], pagina);
+app.get(['/', '/pantalla', '/jugar', '/jueces'], pagina);
+// La página de confirmación lleva la vista previa del flyer para cuando se comparte por WhatsApp
+let htmlInscripcion = null;
+app.get('/inscripcion', (req, res) => {
+  const base = baseUrl(req);
+  if (!htmlInscripcion) htmlInscripcion = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+  const og = `<meta property="og:title" content="¡Una noche para celebrar juntos! · Confirmá tu asistencia">
+<meta property="og:description" content="Jueves 3 de diciembre, 20 hs, Anexo Niceto. Juegos, sorteos, música y regalos. Club GEI.">
+<meta property="og:image" content="${esc(base)}/flyer.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">`;
+  res.set('Cache-Control', 'no-cache');
+  res.send(htmlInscripcion.replace('</head>', og + '\n</head>').replace(/<title>[^<]*<\/title>/, '<title>Confirmá tu asistencia · Club GEI</title>'));
+});
 app.get('/sw.js', (req, res) => { res.set('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'sw.js')); });
 app.get('/vendor/qrcode.js', (req, res) => res.sendFile(require.resolve('qrcode-generator')));
 app.get('/api/info', (req, res) => res.json({ base: baseUrl(req) }));

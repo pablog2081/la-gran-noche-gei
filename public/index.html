@@ -595,6 +595,24 @@
   .jz-notas button { border: 2px solid rgba(0,0,0,.15); border-radius: 10px; padding: 9px 0; background: rgba(255,255,255,.92); color: #16283A; font-size: 18px; font-weight: 900; cursor: pointer; }
   .jz-notas button.on { background: var(--gold); border-color: #16283A; }
   .p-anuncio-eqs small { display: block; font-size: 2.6vh; font-weight: 700; opacity: .85; }
+  /* Página de confirmación con el flyer del evento */
+  body.mode-inscripcion { background: #eeedeb; }
+  body.mode-inscripcion #inscripcion > .j-head { display: none; }
+  body.mode-inscripcion #inscripcion { padding-top: 0; }
+  .insc-flyer { margin: 0 -16px; }
+  .insc-flyer img { display: block; width: 100%; height: auto; }
+  .globos { margin: 4px 0 0; text-align: center; font-family: 'Fredoka', 'Archivo Black', sans-serif; font-weight: 700; font-size: clamp(46px, 15vw, 74px); line-height: .95; letter-spacing: .01em;
+    background: linear-gradient(180deg, #9cc9ff 0%, #3d86f0 22%, #1556c9 48%, #0a3a9c 70%, #2f74e0 88%, #8dbdff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    -webkit-text-stroke: 1.5px #0b2f7a; filter: drop-shadow(0 4px 0 rgba(10,40,110,.35)) drop-shadow(0 10px 14px rgba(0,30,90,.25)); }
+  .insc-copy { text-align: center; color: #1b2a3a; font-size: 17px; line-height: 1.5; }
+  .insc-copy p { margin: 8px 0; }
+  .insc-copy b { color: #0d4fb8; }
+  .insc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0; }
+  .insc-chips span { background: #fff; border: 1.5px solid #c9d8f2; color: #0d4fb8; font-weight: 800; font-size: 15px; padding: 6px 12px; border-radius: 99px; }
+  .insc-cierre { font-weight: 800; font-size: 19px; color: #0d4fb8 !important; }
+  body.mode-inscripcion .j-card { background: #fff; color: #1b2a3a; }
+  body.mode-inscripcion .j-card .hint, body.mode-inscripcion .j-card .muted, body.mode-inscripcion .j-card .field { color: #5b6b7a; }
+  body.mode-inscripcion .j-input { background: #f6f7f9; color: #1b2a3a; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1731,7 +1749,7 @@
     $('inscripcion').hidden = r !== 'inscripcion';
     if (r === 'juez' || r === 'inscripcion') document.body.classList.add('mode-jugador');
     if (r === 'juez') { try { juezPin = sessionStorage.getItem('lgn-juez'); } catch (e) { } renderJuez(); return; }
-    if (r === 'inscripcion') { renderInscPublica(); return; }
+    if (r === 'inscripcion') { document.body.classList.add('mode-inscripcion'); renderInscPublica(); return; }
     $('proyectorBtn').hidden = r !== 'control';
     $('fullscreenBtn').hidden = r !== 'pantalla';
     $('sonidoBtn').hidden = r !== 'pantalla';
@@ -3232,7 +3250,13 @@
     socket.timeout(70000).emit('inscInfo', null, function (err, info) {
       if (err || !info) { m.innerHTML = '<div class="j-card center"><h2>No se pudo cargar</h2><p class="muted">Recargá la página en un minuto.</p></div>'; return; }
       var hechas = lsGet('mis-insc') || [];
-      var cab = '<div class="j-card center"><h2 style="margin:0">Confirmá tu asistencia</h2>' + (info.fecha ? '<p style="margin:8px 0 0;font-weight:800">📅 ' + esc(info.fecha) + '</p>' : '') + (info.texto ? '<p class="muted" style="margin:8px 0 0;line-height:1.5">' + esc(info.texto) + '</p>' : '') + '</div>';
+      // Flyer del evento (con fecha y lugar) + "¡Confirmá acá!" en globos
+      var cab = '<div class="insc-flyer"><img src="/flyer-inscripcion.jpg" alt="¡Una noche para celebrar juntos! Jueves 3 de diciembre, 20 hs, Anexo Niceto. Club GEI"></div>' +
+        '<h2 class="globos" aria-label="¡Confirmá acá!">¡CONFIRMÁ<br>ACÁ!</h2>' +
+        '<div class="insc-copy"><p>👟 Traé <b>ropa cómoda</b> y venite a <b>jugar</b>, divertirte y <b>competir con tu equipo por regalos</b>.</p>' +
+        '<div class="insc-chips"><span>🎁 Sorteos sorpresa</span><span>🎶 Música</span><span>🎉 Mucha diversión</span></div>' +
+        '<p class="insc-cierre">💙 ¡Te lo merecés! No te lo pierdas.</p>' +
+        (info.texto ? '<p class="muted">' + esc(info.texto) + '</p>' : '') + '</div>';
       if (!info.abierta) { m.innerHTML = cab + '<div class="j-card center"><div class="j-big">🔒</div><h2>La inscripción está cerrada</h2></div>'; return; }
       var elegido = null, aManoInsc = !info.lista.length;
       var formulario = function () {
