@@ -34,20 +34,53 @@ fs.mkdirSync(DIR_IMAGENES, { recursive: true });
 function leer(nombre) {
   try { return JSON.parse(fs.readFileSync(path.join(DIR_DATOS, nombre), 'utf8')); } catch (e) { return null; }
 }
+// ---------- Guardado en la nube (Upstash Redis, gratis) ----------
+// En el plan gratis de Render el disco se borra cuando el servidor se reinicia.
+// Si están UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN, todo se guarda también en la nube
+// y al arrancar se recupera de ahí.
+const NUBE_URL = (process.env.UPSTASH_REDIS_REST_URL || '').replace(/\/$/, '');
+const NUBE_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
+const NUBE_PREFIJO = 'lgn:';
+const EN_LA_NUBE = ['estado.json', 'contenido.json', 'respaldo.json', 'inscripciones.json', 'publicos.json'];
+async function nube(cmd) {
+  const r = await fetch(NUBE_URL, { method: 'POST', headers: { Authorization: 'Bearer ' + NUBE_TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify(cmd) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || ('HTTP ' + r.status));
+  return d.result;
+}
 const timers = {};
 function guardar(nombre, datos) {
   clearTimeout(timers[nombre]);
   timers[nombre] = setTimeout(() => {
-    fs.writeFile(path.join(DIR_DATOS, nombre), JSON.stringify(datos), () => {});
+    const txt = JSON.stringify(datos);
+    fs.writeFile(path.join(DIR_DATOS, nombre), txt, () => {});
+    if (NUBE_URL && NUBE_TOKEN && EN_LA_NUBE.includes(nombre)) nube(['SET', NUBE_PREFIJO + nombre, txt]).catch(e => console.log('No se pudo guardar en la nube:', nombre, e.message));
   }, 500);
 }
-let ultimoEstado = leer('estado.json');   // lo que ven proyector y celulares
-let contenido = leer('contenido.json');   // preguntas, desafíos y tesoro (privado)
-let respaldo = leer('respaldo.json');     // estado completo de la consola (privado)
-// Inscripción previa: la guarda el servidor (la consola tiene una copia por si el servidor se reinicia)
-let insc = leer('inscripciones.json') || {};
-insc.cfg = Object.assign({ abierta: true, fecha: '', texto: '' }, insc.cfg || {});
-insc.lista = Array.isArray(insc.lista) ? insc.lista : [];
+async function traerDeLaNube() {
+  if (!NUBE_URL || !NUBE_TOKEN) { console.log('  Sin guardado en la nube (faltan UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN).'); return; }
+  try {
+    const vals = await nube(['MGET'].concat(EN_LA_NUBE.map(n => NUBE_PREFIJO + n)));
+    let n = 0;
+    EN_LA_NUBE.forEach((nombre, i) => {
+      if (!vals || vals[i] == null) return;
+      fs.writeFileSync(path.join(DIR_DATOS, nombre), vals[i]); n++;
+    });
+    console.log('  Guardado en la nube: se recuperaron ' + n + ' archivos.');
+  } catch (e) { console.log('  No se pudo leer la nube:', e.message); }
+}
+let ultimoEstado, contenido, respaldo, insc;
+function cargarDatos() {
+  ultimoEstado = leer('estado.json');   // lo que ven proyector y celulares
+  contenido = leer('contenido.json');   // preguntas, desafíos y tesoro (privado)
+  respaldo = leer('respaldo.json');     // estado completo de la consola (privado)
+  // Inscripción previa (la consola además tiene una copia)
+  insc = leer('inscripciones.json') || {};
+  insc.cfg = Object.assign({ abierta: true, fecha: '', texto: '' }, insc.cfg || {});
+  insc.lista = Array.isArray(insc.lista) ? insc.lista : [];
+  Object.keys(publicos).forEach(k => delete publicos[k]);
+  Object.assign(publicos, leer('publicos.json') || {});
+}
 
 // ---------- Dirección pública para los QR ----------
 function ipLocal() {
@@ -188,7 +221,7 @@ app.get('/tarjetas', (req, res) => {
 // ---------- Tiempo real ----------
 const pendientes = new Map(); // id de acción → callback del celular
 let proximoId = 1;
-const publicos = leer('publicos.json') || {};   // listas que la consola comparte a pedido (invitados, temas, pruebas)
+const publicos = {};   // listas que la consola comparte a pedido (invitados, temas, pruebas)
 const ID_TEMA = /^spotify:track:[A-Za-z0-9]{22}$/;
 
 function consolaActiva() {
@@ -383,7 +416,8 @@ io.on('connection', socket => {
   });
 });
 
-server.listen(PORT, () => {
+traerDeLaNube().then(() => { cargarDatos(); server.listen(PORT, arrancado); });
+function arrancado() {
   const base = BASE_URL || ('http://' + ipLocal() + ':' + PORT);
   console.log('\n==============================================');
   console.log('  La gran noche de la familia GEI — ¡servidor andando!');
@@ -392,4 +426,4 @@ server.listen(PORT, () => {
   console.log('  Proyector:  ' + base + '/pantalla');
   console.log('  Jugadores:  ' + base + '/jugar');
   console.log('==============================================\n');
-});
+}

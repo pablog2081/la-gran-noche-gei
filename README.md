@@ -96,6 +96,16 @@ Los jurados entran desde el celular en `/jueces` con su propio PIN. Los puntos s
 
 Hay una ronda por cada actividad del club con 3 preguntas: dos de opción múltiple y una de aproximación con números. La ronda **👁️ Adiviná quién o qué es** usa fotos que subís vos con un efecto (pixelada, zoom extremo, rompecabezas o desenfocada) que se va aclarando mientras corre el tiempo.
 
+## Guardado en la nube (gratis)
+
+En el plan gratis de Render el disco se borra cada vez que el servidor se reinicia. Para que la lista de invitados, las confirmaciones, las preguntas y los puntos queden guardados siempre, la app usa una base gratuita de **Upstash** (Redis):
+
+1. Entrá a [console.upstash.com](https://console.upstash.com) con tu cuenta de GitHub y creá una base **Redis** (plan Free).
+2. En la base, sección **REST API**, copiá `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`.
+3. En Render → tu servicio → **Environment**, agregá esas dos variables con sus valores y guardá.
+
+Al arrancar, el servidor recupera todo de la nube. Las imágenes de las preguntas las vuelve a mandar la consola sola.
+
 ## Conectar Spotify (opcional)
 
 Hace falta una cuenta **Premium**: la del organizador, que es la dueña de la playlist.
