@@ -1333,8 +1333,11 @@
           for (var i = 0; i < ancho; i++) {
             if (i === iNom || i === iApe || !f[i] || !String(f[i].v).trim()) continue;
             var titulo = titulos[i];
-            var fuerte = /sector|area|área|puesto|disciplina|deporte|departamento/i.test(titulo);
-            tags.push((fuerte ? 3 : 2) + ':' + titulo + ':' + valorGrupo(f[i].v));
+            var fuerte = /sector|area|área|puesto|disciplina|deporte|departamento|actividad/i.test(titulo);
+            // una celda puede traer varios valores separados por coma (por ejemplo, varias actividades)
+            String(f[i].v).split(/\s*[,;\/]\s*/).filter(function (x) { return x.trim(); }).forEach(function (val) {
+              tags.push((fuerte ? 3 : 2) + ':' + titulo + ':' + valorGrupo(val));
+            });
           }
           out.push({ nombre: nom, tags: tags });
         });
