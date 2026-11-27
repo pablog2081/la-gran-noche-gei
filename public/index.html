@@ -3261,13 +3261,13 @@
   var nGlobo = 0;
   function letrasGlobo(lineas, opts) {
     opts = opts || {};
-    var fs = 150, alto = 165, sx = 0.9, solape = 0.1, id = 'glb' + (++nGlobo);
+    var fs = 150, alto = 185, sx = 0.9, solape = 0.1, id = 'glb' + (++nGlobo);
     var ns = 'http://www.w3.org/2000/svg';
     var svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('class', 'globos-svg'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', lineas.join(' '));
     svg.innerHTML = '<defs><filter id="' + id + '" x="-25%" y="-25%" width="150%" height="160%" color-interpolation-filters="sRGB">' +
-      '<feMorphology in="SourceAlpha" operator="dilate" radius="3" result="fat"/>' +
-      '<feGaussianBlur in="fat" stdDeviation="8" result="blur"/>' +
+      '<feMorphology in="SourceAlpha" operator="dilate" radius="' + (opts.fat || 1) + '" result="fat"/>' +
+      '<feGaussianBlur in="fat" stdDeviation="' + (opts.blur || 6) + '" result="blur"/>' +
       '<feDiffuseLighting in="blur" surfaceScale="10" diffuseConstant="1" lighting-color="#ffffff" result="diff"><feDistantLight azimuth="225" elevation="28"/></feDiffuseLighting>' +
       '<feComposite in="diff" in2="fat" operator="in" result="diffIn"/>' +
       '<feFlood flood-color="#1d63e4"/><feComposite in2="fat" operator="in" result="base"/>' +
@@ -3285,12 +3285,19 @@
       var x = 0, letras = [];
       Array.prototype.forEach.call(linea, function (ch) {
         if (ch === ' ') { x += fs * 0.28; return; }
+        var acento = /[ÁÉÍÓÚ]/.test(ch); if (acento) ch = ch.normalize('NFD')[0];
         var t = document.createElementNS(ns, 'text');
         t.setAttribute('font-family', "'Baloo 2', 'Fredoka', sans-serif"); t.setAttribute('font-weight', '800'); t.setAttribute('font-size', fs);
         t.setAttribute('filter', 'url(#' + id + ')'); t.textContent = ch;
         svg.appendChild(t);
         var w = t.getComputedTextLength() * sx;
-        letras.push({ t: t, x: x, w: w }); x += w * (1 - solape);
+        var tilde = null;
+        if (acento) {   // la tilde va como un globito aparte, arriba de la letra
+          tilde = document.createElementNS(ns, 'ellipse');
+          tilde.setAttribute('rx', fs * 0.075); tilde.setAttribute('ry', fs * 0.14); tilde.setAttribute('fill', '#000'); tilde.setAttribute('filter', 'url(#' + id + ')');
+          svg.appendChild(tilde);
+        }
+        letras.push({ t: t, x: x, w: w, tilde: tilde }); x += w * (1 - solape);
       });
       var ancho = letras.length ? letras[letras.length - 1].x + letras[letras.length - 1].w : 0;
       anchoMax = Math.max(anchoMax, ancho); filas.push({ letras: letras, ancho: ancho, y: (li + 1) * alto - 30 });
@@ -3301,6 +3308,7 @@
         // un poco de vaivén, como globos de verdad
         var rot = ((i * 37) % 7 - 3) * 0.9;
         l.t.setAttribute('transform', 'translate(' + (dx + l.x).toFixed(1) + ' ' + f.y + ') rotate(' + rot + ' ' + (l.w / 2).toFixed(1) + ' -50) scale(' + sx + ' 1)');
+        if (l.tilde) l.tilde.setAttribute('transform', 'translate(' + (dx + l.x + l.w * 0.62).toFixed(1) + ' ' + (f.y - fs * 0.86).toFixed(1) + ') rotate(38)');
       });
     });
     svg.setAttribute('viewBox', '0 0 ' + Math.ceil(anchoMax + 40) + ' ' + (lineas.length * alto + 10));
@@ -3309,7 +3317,7 @@
   }
   function pintarGlobos() {
     var box = $('inscGlobos'); if (!box) return;
-    var poner = function () { if (!box.isConnected) return; box.innerHTML = ''; box.appendChild(letrasGlobo(['¡CONFIRMÁ', 'ACÁ!'])); };
+    var poner = function () { if (!box.isConnected) return; box.innerHTML = ''; box.appendChild(letrasGlobo(['¡CONFIRMÁ', 'ACÁ!'], { fat: 1, blur: 6 })); };
     if (document.fonts && document.fonts.load) document.fonts.load("800 50px 'Baloo 2'").then(poner, poner); else poner();
   }
   // ---- Página pública de inscripción (/inscripcion) ----
